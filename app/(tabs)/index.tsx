@@ -1,55 +1,90 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
-import { Button } from "@/components/Button";
 import { IdeaCard } from "@/components/IdeaCard";
 import { SkeletonCard } from "@/components/Skeleton";
-import { ApiError, addFavorite, fetchRandomIdea, removeFavorite } from "@/lib/api";
+import { SwipeCard } from "@/components/SwipeCard";
+import { TagChip } from "@/components/TagChip";
+import { ApiError, addFavorite, fetchRandomIdea } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
+import { isDailyReminderEnabled, setDailyReminderEnabled } from "@/lib/notifications";
 import { colors, radius, spacing, typography } from "@/lib/theme";
-import type { RandomIdea } from "@/lib/types";
+import type { PlatformTag, RandomIdea } from "@/lib/types";
+
+const QUEUE_BUFFER = 2;
+type PlatformFilter = PlatformTag | "all";
+const FILTERS: { label: string; value: PlatformFilter }[] = [
+  { label: "All", value: "all" },
+  { label: "Web", value: "web" },
+  { label: "Mobile", value: "mobile" },
+];
 
 export default function IdeasScreen() {
   const { token, user, signOut } = useAuth();
-  const [idea, setIdea] = useState<RandomIdea | null>(null);
+  const [queue, setQueue] = useState<RandomIdea[]>([]);
   const [loading, setLoading] = useState(false);
-  const [favoriteId, setFavoriteId] = useState<string | null>(null);
-  const [favoriting, setFavoriting] = useState(false);
+  const [capReached, setCapReached] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [filter, setFilter] = useState<PlatformFilter>("all");
+  const [reminderEnabled, setReminderEnabled] = useState(false);
+  const fetchingRef = useRef(false);
 
-  const generate = useCallback(async () => {
-    if (!token) return;
+  useEffect(() => {
+    isDailyReminderEnabled().then(setReminderEnabled);
+  }, []);
+
+  const replenish = useCallback(async () => {
+    if (!token || fetchingRef.current || capReached) return;
+    fetchingRef.current = true;
     setLoading(true);
     setError(null);
     try {
-      const next = await fetchRandomIdea(token);
-      setIdea(next);
-      setFavoriteId(null);
+      const next = await fetchRandomIdea(token, filter === "all" ? undefined : filter);
+      setQueue((current) => [...current, next]);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Couldn't generate an idea right now.");
+      if (err instanceof ApiError && err.status === 429) {
+        setCapReached(true);
+      } else {
+        setError(err instanceof ApiError ? err.message : "Couldn't load more ideas right now.");
+      }
     } finally {
+      fetchingRef.current = false;
       setLoading(false);
     }
-  }, [token]);
+  }, [token, filter, capReached]);
 
-  const toggleFavorite = useCallback(async () => {
-    if (!token || !idea) return;
-    setFavoriting(true);
-    setError(null);
-    try {
-      if (favoriteId) {
-        await removeFavorite(token, favoriteId);
-        setFavoriteId(null);
-      } else {
-        const saved = await addFavorite(token, idea);
-        setFavoriteId(saved.id);
-      }
-    } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Couldn't update that favorite.");
-    } finally {
-      setFavoriting(false);
+  useEffect(() => {
+    if (queue.length < QUEUE_BUFFER && !capReached) {
+      replenish();
     }
-  }, [token, idea, favoriteId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- replenish is stable enough per (token, filter, capReached), re-running on queue.length is the actual trigger
+  }, [queue.length, capReached, replenish]);
+
+  const changeFilter = (next: PlatformFilter) => {
+    if (next === filter) return;
+    setFilter(next);
+    setCapReached(false);
+    setQueue([]);
+  };
+
+  const swipeRight = useCallback(
+    (idea: RandomIdea) => {
+      setQueue((current) => current.slice(1));
+      if (!token) return;
+      addFavorite(token, idea).catch(() => setError("Couldn't save that favorite."));
+    },
+    [token]
+  );
+
+  const swipeLeft = useCallback(() => {
+    setQueue((current) => current.slice(1));
+  }, []);
+
+  const toggleReminder = async () => {
+    const ok = await setDailyReminderEnabled(!reminderEnabled);
+    if (ok) setReminderEnabled(!reminderEnabled);
+    else setError("Enable notifications in your device settings to get a daily reminder.");
+  };
 
   const initials = user?.name
     ? user.name
@@ -59,6 +94,9 @@ export default function IdeasScreen() {
         .join("")
         .toUpperCase()
     : "?";
+
+  const front = queue[0];
+  const behind = queue[1];
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -77,36 +115,47 @@ export default function IdeasScreen() {
               </View>
             )
           ) : null}
+          <Pressable onPress={toggleReminder} hitSlop={8}>
+            <Text style={styles.headerIcon}>{reminderEnabled ? "🔔" : "🔕"}</Text>
+          </Pressable>
           <Pressable onPress={signOut} hitSlop={8}>
             <Text style={styles.signOut}>Sign out</Text>
           </Pressable>
         </View>
       </View>
 
-      {loading ? (
-        <SkeletonCard />
-      ) : !idea ? (
-        <Animated.View entering={FadeIn.duration(300)} style={styles.prompt}>
-          <Text style={styles.promptHeadline}>Stuck on thinking what to do?</Text>
-          <Text style={styles.promptSubtext}>Generate a random app idea to build.</Text>
-        </Animated.View>
-      ) : (
-        <IdeaCard
-          idea={idea}
-          variant="detail"
-          favorited={!!favoriteId}
-          favoriteLoading={favoriting}
-          onToggleFavorite={toggleFavorite}
-        />
-      )}
+      <View style={styles.filterRow}>
+        {FILTERS.map((f) => (
+          <TagChip key={f.value} label={f.label} selected={filter === f.value} onPress={() => changeFilter(f.value)} />
+        ))}
+      </View>
+
+      <View style={styles.deck}>
+        {front ? (
+          <View>
+            {behind ? (
+              <View style={styles.behindCard} pointerEvents="none">
+                <IdeaCard idea={behind} variant="detail" />
+              </View>
+            ) : null}
+            <SwipeCard idea={front} onSwipeRight={() => swipeRight(front)} onSwipeLeft={swipeLeft} />
+          </View>
+        ) : capReached ? (
+          <Animated.View entering={FadeIn.duration(300)} style={styles.prompt}>
+            <Text style={styles.promptHeadline}>You've explored today's ideas</Text>
+            <Text style={styles.promptSubtext}>Come back tomorrow for a fresh batch.</Text>
+          </Animated.View>
+        ) : loading ? (
+          <SkeletonCard />
+        ) : (
+          <Animated.View entering={FadeIn.duration(300)} style={styles.prompt}>
+            <Text style={styles.promptHeadline}>Stuck on thinking what to do?</Text>
+            <Text style={styles.promptSubtext}>Swipe right to favorite, left to skip.</Text>
+          </Animated.View>
+        )}
+      </View>
 
       {error ? <Text style={styles.error}>{error}</Text> : null}
-
-      <View style={styles.actions}>
-        <Button onPress={generate} disabled={loading} loading={loading}>
-          {idea ? "Randomize again" : "Generate an idea"}
-        </Button>
-      </View>
     </ScrollView>
   );
 }
@@ -116,7 +165,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     backgroundColor: colors.background,
     padding: spacing.lg,
-    gap: spacing.lg,
+    gap: spacing.md,
   },
   header: {
     flexDirection: "row",
@@ -128,8 +177,9 @@ const styles = StyleSheet.create({
     flexShrink: 1,
   },
   headerRight: {
-    alignItems: "flex-end",
-    gap: spacing.xs,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
   },
   title: {
     ...typography.title,
@@ -160,9 +210,27 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "700",
   },
+  headerIcon: {
+    fontSize: 18,
+  },
   signOut: {
     color: colors.muted,
     fontSize: 13,
+  },
+  filterRow: {
+    flexDirection: "row",
+    gap: spacing.xs,
+  },
+  deck: {
+    marginTop: spacing.md,
+  },
+  behindCard: {
+    position: "absolute",
+    top: 8,
+    left: 8,
+    right: 8,
+    opacity: 0.5,
+    transform: [{ scale: 0.96 }],
   },
   prompt: {
     borderWidth: 1,
@@ -170,7 +238,6 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     padding: spacing.lg,
     gap: spacing.xs,
-    marginTop: spacing.xl,
   },
   promptHeadline: {
     ...typography.heading,
@@ -179,10 +246,6 @@ const styles = StyleSheet.create({
   promptSubtext: {
     ...typography.body,
     color: colors.muted,
-  },
-  actions: {
-    gap: spacing.sm,
-    marginTop: "auto",
   },
   error: {
     color: colors.danger,

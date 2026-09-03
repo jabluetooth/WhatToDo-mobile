@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Pressable, Share, StyleSheet, Text, View } from "react-native";
 import Animated, {
   FadeInUp,
   FadeOutRight,
@@ -21,6 +21,10 @@ interface IdeaCardProps {
   favoriteLoading?: boolean;
   onRemove?: () => void;
   removeLoading?: boolean;
+  /** Tapping the card body (not the header actions) — used by the Favorites list to open the edit sheet. */
+  onPress?: () => void;
+  /** Shows a "Share" text action in the header when set. Omit to let a caller (e.g. FavoriteEditSheet) handle sharing itself. */
+  onShare?: () => void;
 }
 
 export function IdeaCard({
@@ -31,10 +35,12 @@ export function IdeaCard({
   favoriteLoading,
   onRemove,
   removeLoading,
+  onPress,
+  onShare,
 }: IdeaCardProps) {
   const isDetail = variant === "detail";
 
-  return (
+  const content = (
     <Animated.View
       entering={FadeInUp.duration(280)}
       exiting={FadeOutRight.duration(220)}
@@ -43,11 +49,18 @@ export function IdeaCard({
     >
       <View style={styles.header}>
         <Badge label={idea.platformTag} />
-        {onRemove ? (
-          <Pressable onPress={onRemove} disabled={removeLoading} hitSlop={8}>
-            <Text style={styles.remove}>{removeLoading ? "…" : "Remove"}</Text>
-          </Pressable>
-        ) : null}
+        <View style={styles.headerActions}>
+          {onShare ? (
+            <Pressable onPress={onShare} hitSlop={8}>
+              <Text style={styles.headerAction}>Share</Text>
+            </Pressable>
+          ) : null}
+          {onRemove ? (
+            <Pressable onPress={onRemove} disabled={removeLoading} hitSlop={8}>
+              <Text style={styles.remove}>{removeLoading ? "…" : "Remove"}</Text>
+            </Pressable>
+          ) : null}
+        </View>
       </View>
       <Text style={[styles.title, isDetail ? typography.title : typography.heading]}>{idea.title}</Text>
       <Text style={styles.targetUser}>{idea.targetUser}</Text>
@@ -58,6 +71,14 @@ export function IdeaCard({
       ) : null}
     </Animated.View>
   );
+
+  if (!onPress) return content;
+
+  return <Pressable onPress={onPress}>{content}</Pressable>;
+}
+
+export function shareIdea(idea: RandomIdea) {
+  Share.share({ message: `${idea.title}\n\n${idea.description}` });
 }
 
 function FavoriteToggle({
@@ -104,6 +125,15 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+  },
+  headerActions: {
+    flexDirection: "row",
+    gap: spacing.md,
+  },
+  headerAction: {
+    ...typography.caption,
+    color: colors.muted,
+    fontWeight: "600",
   },
   title: {
     color: colors.foreground,

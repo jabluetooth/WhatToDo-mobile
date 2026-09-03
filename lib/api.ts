@@ -1,4 +1,4 @@
-import type { Favorite, MobileUser, RandomIdea } from "@/lib/types";
+import type { Favorite, MobileUser, PlatformTag, PresetTag, RandomIdea } from "@/lib/types";
 
 const BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL ?? "http://localhost:3000";
 
@@ -38,18 +38,31 @@ export function fetchMe(token: string): Promise<MobileUser> {
   return request<MobileUser>("/api/mobile/me", token);
 }
 
-export function fetchRandomIdea(token: string): Promise<RandomIdea> {
-  return request<RandomIdea>("/api/mobile/ideas/random", token);
+export function fetchRandomIdea(token: string, platform?: PlatformTag): Promise<RandomIdea> {
+  const query = platform ? `?platform=${platform}` : "";
+  return request<RandomIdea>(`/api/mobile/ideas/random${query}`, token);
 }
 
-export function listFavorites(token: string): Promise<Favorite[]> {
-  return request<Favorite[]>("/api/mobile/favorites", token);
+export async function listFavorites(token: string): Promise<Favorite[]> {
+  const { favorites } = await request<{ favorites: Favorite[] }>("/api/mobile/favorites", token);
+  return favorites;
 }
 
 export function addFavorite(token: string, idea: RandomIdea): Promise<Favorite> {
   return request<Favorite>("/api/mobile/favorites", token, {
     method: "POST",
     body: JSON.stringify(idea),
+  });
+}
+
+export function updateFavorite(
+  token: string,
+  id: string,
+  updates: { notes?: string | null; tags?: PresetTag[] }
+): Promise<Favorite> {
+  return request<Favorite>(`/api/mobile/favorites/${id}`, token, {
+    method: "PATCH",
+    body: JSON.stringify(updates),
   });
 }
 
