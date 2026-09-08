@@ -27,7 +27,10 @@
       "expo-router",
       "expo-secure-store",
       "expo-web-browser",
-      "expo-notifications"
+      "expo-notifications",
+      "expo-font",
+      "expo-splash-screen",
+      "expo-status-bar"
     ]
   }
 }
