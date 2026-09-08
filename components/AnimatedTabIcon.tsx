@@ -1,15 +1,15 @@
-import { useEffect } from "react";
-import Feather from "@expo/vector-icons/Feather";
+import { useEffect, type ReactNode } from "react";
+import { StyleSheet } from "react-native";
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
+import { colors, radius } from "@/lib/theme";
 
 interface AnimatedTabIconProps {
-  name: keyof typeof Feather.glyphMap;
-  color: string;
-  size: number;
   focused: boolean;
+  children: ReactNode;
 }
 
-export function AnimatedTabIcon({ name, color, size, focused }: AnimatedTabIconProps) {
+/** Circular avatar-bubble backdrop per tab, matching MessageDock's character-avatar look. */
+export function AnimatedTabIcon({ focused, children }: AnimatedTabIconProps) {
   const scale = useSharedValue(1);
 
   useEffect(() => {
@@ -19,8 +19,21 @@ export function AnimatedTabIcon({ name, color, size, focused }: AnimatedTabIconP
   const animatedStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
 
   return (
-    <Animated.View style={animatedStyle}>
-      <Feather name={name} size={size} color={color} />
+    <Animated.View style={[styles.bubble, focused && styles.bubbleFocused, animatedStyle]}>
+      {children}
     </Animated.View>
   );
 }
+
+const styles = StyleSheet.create({
+  bubble: {
+    width: 40,
+    height: 40,
+    borderRadius: radius.full,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  bubbleFocused: {
+    backgroundColor: colors.surfacePressed,
+  },
+});

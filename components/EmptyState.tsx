@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
-import { colors, spacing } from "@/lib/theme";
+import { colors, spacing, typography } from "@/lib/theme";
 
 export function EmptyState({ message }: { message: string }) {
   return (
@@ -16,8 +16,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
   },
   text: {
-    color: colors.muted,
-    fontSize: 14,
+    ...typography.body,
+    color: colors.foregroundMuted,
     textAlign: "center",
   },
 });

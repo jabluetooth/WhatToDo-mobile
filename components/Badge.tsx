@@ -15,12 +15,12 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: radius.sm,
+    borderRadius: radius.full,
     paddingHorizontal: spacing.sm,
-    paddingVertical: 2,
+    paddingVertical: 4,
   },
   text: {
     ...typography.label,
-    color: colors.muted,
+    color: colors.foregroundMuted,
   },
 });

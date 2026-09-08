@@ -1,3 +1,4 @@
+import Feather from "@expo/vector-icons/Feather";
 import { Redirect } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";
 import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
@@ -22,7 +23,12 @@ export default function SignIn() {
 
       <Animated.View entering={FadeInUp.duration(500).delay(150)} style={styles.footer}>
         {error ? <Text style={styles.error}>{error}</Text> : null}
-        <Button onPress={signIn} disabled={signingIn} loading={signingIn}>
+        <Button
+          onPress={signIn}
+          disabled={signingIn}
+          loading={signingIn}
+          icon={<Feather name="github" size={16} color={colors.background} />}
+        >
           Continue with GitHub
         </Button>
         <Text style={styles.hint}>Sign-in is required to save favorites across sessions.</Text>
@@ -45,19 +51,20 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   wordmark: {
+    fontFamily: "Inter_700Bold",
     fontSize: 56,
-    fontWeight: "800",
     color: colors.foreground,
     marginBottom: spacing.sm,
   },
   title: {
     ...typography.title,
     fontSize: 28,
+    lineHeight: 34,
     color: colors.foreground,
   },
   subtitle: {
     ...typography.body,
-    color: colors.muted,
+    color: colors.foregroundMuted,
     textAlign: "center",
     maxWidth: 280,
   },
@@ -65,13 +72,13 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   hint: {
-    color: colors.muted,
-    fontSize: 12,
+    ...typography.caption,
+    color: colors.foregroundMuted,
     textAlign: "center",
   },
   error: {
+    ...typography.caption,
     color: colors.danger,
-    fontSize: 13,
     textAlign: "center",
   },
 });

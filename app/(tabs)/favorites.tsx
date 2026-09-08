@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useBottomTabBarHeight } from "expo-router/js-tabs";
 import { FlatList, RefreshControl, StyleSheet, Text, View } from "react-native";
 import { EmptyState } from "@/components/EmptyState";
 import { FavoriteEditSheet } from "@/components/FavoriteEditSheet";
@@ -11,6 +12,7 @@ import { colors, spacing, typography } from "@/lib/theme";
 import { PRESET_TAGS, type Favorite, type PresetTag } from "@/lib/types";
 
 export default function FavoritesScreen() {
+  const tabBarHeight = useBottomTabBarHeight();
   const { token } = useAuth();
   const [favorites, setFavorites] = useState<Favorite[]>([]);
   const [loading, setLoading] = useState(true);
@@ -79,7 +81,7 @@ export default function FavoritesScreen() {
 
   if (loading) {
     return (
-      <View style={styles.list}>
+      <View style={[styles.list, { paddingBottom: tabBarHeight + spacing.lg }]}>
         <Text style={[styles.title, styles.headerSpacing]}>Favorites</Text>
         <View style={styles.skeletonGroup}>
           <SkeletonCard />
@@ -95,7 +97,7 @@ export default function FavoritesScreen() {
       <FlatList
         data={visibleFavorites}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.list}
+        contentContainerStyle={[styles.list, { paddingBottom: tabBarHeight + spacing.lg }]}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={() => load(true)} tintColor={colors.foreground} />
         }
@@ -175,7 +177,7 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   error: {
+    ...typography.caption,
     color: colors.danger,
-    fontSize: 13,
   },
 });

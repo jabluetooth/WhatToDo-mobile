@@ -1,5 +1,5 @@
 import { type ReactNode } from "react";
-import { ActivityIndicator, Pressable, StyleSheet, Text, type StyleProp, type ViewStyle } from "react-native";
+import { ActivityIndicator, Pressable, StyleSheet, Text, View, type StyleProp, type ViewStyle } from "react-native";
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
 import { colors, radius, spacing } from "@/lib/theme";
 
@@ -11,10 +11,12 @@ interface ButtonProps {
   loading?: boolean;
   variant?: "primary" | "secondary";
   children: ReactNode;
+  /** Rendered left of the label with a fixed gap — pass a sized vector icon element. */
+  icon?: ReactNode;
   style?: StyleProp<ViewStyle>;
 }
 
-export function Button({ onPress, disabled, loading, variant = "primary", children, style }: ButtonProps) {
+export function Button({ onPress, disabled, loading, variant = "primary", children, icon, style }: ButtonProps) {
   const scale = useSharedValue(1);
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -41,7 +43,10 @@ export function Button({ onPress, disabled, loading, variant = "primary", childr
       {loading ? (
         <ActivityIndicator color={variant === "primary" ? colors.background : colors.foreground} />
       ) : typeof children === "string" ? (
-        <Text style={variant === "primary" ? styles.primaryText : styles.secondaryText}>{children}</Text>
+        <View style={styles.content}>
+          {icon}
+          <Text style={variant === "primary" ? styles.primaryText : styles.secondaryText}>{children}</Text>
+        </View>
       ) : (
         children
       )}
@@ -68,14 +73,19 @@ const styles = StyleSheet.create({
   disabled: {
     opacity: 0.6,
   },
+  content: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.xs,
+  },
   primaryText: {
     color: colors.background,
-    fontWeight: "700",
+    fontFamily: "Inter_700Bold",
     fontSize: 15,
   },
   secondaryText: {
     color: colors.foreground,
-    fontWeight: "600",
+    fontFamily: "Inter_600SemiBold",
     fontSize: 15,
   },
 });

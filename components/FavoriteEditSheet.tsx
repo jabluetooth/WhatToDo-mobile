@@ -50,6 +50,7 @@ export function FavoriteEditSheet({ favorite, onClose, onSave }: FavoriteEditShe
     <Modal visible transparent animationType="slide" onRequestClose={onClose}>
       <Pressable style={styles.backdrop} onPress={onClose} />
       <View style={styles.sheet}>
+        <View style={styles.dragHandle} />
         <Text style={styles.title}>{favorite.title}</Text>
         <Text style={styles.targetUser}>{favorite.targetUser}</Text>
 
@@ -65,7 +66,7 @@ export function FavoriteEditSheet({ favorite, onClose, onSave }: FavoriteEditShe
           value={notes}
           onChangeText={setNotes}
           placeholder="Why did this one stand out?"
-          placeholderTextColor={colors.muted}
+          placeholderTextColor={colors.foregroundMuted}
           multiline
           style={styles.notesInput}
         />
@@ -98,13 +99,21 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.6)",
   },
   sheet: {
-    backgroundColor: colors.surface,
-    borderTopLeftRadius: radius.lg,
-    borderTopRightRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
+    backgroundColor: colors.surfaceElevated,
+    borderTopLeftRadius: radius.xl,
+    borderTopRightRadius: radius.xl,
+    borderTopWidth: 1,
+    borderColor: colors.borderStrong,
     padding: spacing.lg,
     gap: spacing.sm,
+  },
+  dragHandle: {
+    alignSelf: "center",
+    width: 36,
+    height: 4,
+    borderRadius: radius.full,
+    backgroundColor: colors.borderStrong,
+    marginBottom: spacing.xs,
   },
   title: {
     ...typography.heading,
@@ -112,13 +121,13 @@ const styles = StyleSheet.create({
   },
   targetUser: {
     ...typography.caption,
-    color: colors.muted,
+    color: colors.foregroundMuted,
     fontStyle: "italic",
     marginBottom: spacing.xs,
   },
   label: {
     ...typography.label,
-    color: colors.muted,
+    color: colors.foregroundMuted,
     marginTop: spacing.sm,
   },
   tagRow: {
@@ -144,7 +153,7 @@ const styles = StyleSheet.create({
   linkAction: {
     ...typography.caption,
     color: colors.foreground,
-    fontWeight: "600",
+    fontFamily: "Inter_600SemiBold",
   },
   buttonRow: {
     flexDirection: "row",

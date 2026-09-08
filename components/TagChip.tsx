@@ -23,8 +23,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: radius.sm,
-    paddingHorizontal: spacing.sm,
+    borderRadius: radius.full,
+    paddingHorizontal: spacing.md,
     paddingVertical: 6,
   },
   chipSelected: {
@@ -36,10 +36,10 @@ const styles = StyleSheet.create({
   },
   text: {
     ...typography.caption,
-    color: colors.muted,
+    color: colors.foregroundMuted,
   },
   textSelected: {
     color: colors.background,
-    fontWeight: "600",
+    fontFamily: "Inter_600SemiBold",
   },
 });

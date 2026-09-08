@@ -1,13 +1,19 @@
-// Matches the web app's forced-dark palette (WhatToDo/app/globals.css) for brand consistency.
+// Matches the web app's forced-dark, monochrome-by-design palette (WhatToDo/app/globals.css) —
+// no accent color anywhere, on either app, is a deliberate brand choice, not an oversight.
 export const colors = {
-  background: "#0a0a0a",
-  surface: "#161616",
-  border: "#2a2a2a",
-  foreground: "#ededed",
-  muted: "#8a8a8a",
-  accent: "#ededed",
-  danger: "#f87171",
-  success: "#4ade80",
+  background: "#0A0A0B",
+  // Tonal elevation steps (Material 3's dark-theme approach: higher elevation = lighter surface)
+  // instead of shadows, which don't read against a near-black background.
+  surface: "#151517",
+  surfaceElevated: "#1C1C1F",
+  surfacePressed: "#242428",
+  border: "rgba(255,255,255,0.08)",
+  borderStrong: "rgba(255,255,255,0.16)",
+  foreground: "#F2F2F3",
+  foregroundMuted: "#A1A1AA",
+  foregroundSubtle: "#6B6B70",
+  danger: "#F87171",
+  success: "#4ADE80",
 };
 
 export const spacing = {
@@ -16,18 +22,30 @@ export const spacing = {
   md: 16,
   lg: 24,
   xl: 32,
+  xxl: 40,
 };
 
 export const radius = {
   sm: 8,
   md: 12,
   lg: 16,
+  xl: 20,
+  full: 999,
 };
 
+// Explicit fontFamily per weight — React Native ignores fontWeight on a custom font unless it's a
+// variable font, so each weight needs its own loaded family name (see app/_layout.tsx's useFonts).
 export const typography = {
-  title: { fontSize: 22, fontWeight: "700" as const },
-  heading: { fontSize: 18, fontWeight: "700" as const },
-  body: { fontSize: 15, fontWeight: "400" as const },
-  caption: { fontSize: 13, fontWeight: "400" as const },
-  label: { fontSize: 11, fontWeight: "600" as const, textTransform: "uppercase" as const, letterSpacing: 0.5 },
+  display: { fontFamily: "Inter_700Bold", fontSize: 40, lineHeight: 46 },
+  title: { fontFamily: "Inter_700Bold", fontSize: 24, lineHeight: 30 },
+  heading: { fontFamily: "Inter_600SemiBold", fontSize: 18, lineHeight: 24 },
+  body: { fontFamily: "Inter_400Regular", fontSize: 16, lineHeight: 22 },
+  caption: { fontFamily: "Inter_500Medium", fontSize: 13, lineHeight: 18 },
+  label: {
+    fontFamily: "Inter_600SemiBold",
+    fontSize: 12,
+    lineHeight: 16,
+    textTransform: "uppercase" as const,
+    letterSpacing: 0.4,
+  },
 };

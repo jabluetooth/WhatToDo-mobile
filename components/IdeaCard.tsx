@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { ActivityIndicator, Pressable, Share, StyleSheet, Text, View } from "react-native";
 import Animated, {
   FadeInUp,
@@ -12,6 +13,8 @@ import Animated, {
 import { Badge } from "@/components/Badge";
 import { colors, spacing, radius, typography } from "@/lib/theme";
 import type { RandomIdea } from "@/lib/types";
+
+const AnimatedIonicons = Animated.createAnimatedComponent(Ionicons);
 
 interface IdeaCardProps {
   idea: RandomIdea;
@@ -101,11 +104,14 @@ function FavoriteToggle({
   return (
     <Pressable onPress={onPress} disabled={loading} style={styles.favoriteRow} hitSlop={8}>
       {loading ? (
-        <ActivityIndicator color={colors.muted} size="small" />
+        <ActivityIndicator color={colors.foregroundMuted} size="small" />
       ) : (
-        <Animated.Text style={[styles.favoriteStar, animatedStyle, favorited && styles.favoriteStarActive]}>
-          {favorited ? "★" : "☆"}
-        </Animated.Text>
+        <AnimatedIonicons
+          name={favorited ? "star" : "star-outline"}
+          size={20}
+          color={favorited ? colors.foreground : colors.foregroundMuted}
+          style={animatedStyle}
+        />
       )}
       <Text style={styles.favoriteLabel}>{loading ? "Saving…" : favorited ? "Favorited" : "Favorite"}</Text>
     </Pressable>
@@ -132,28 +138,28 @@ const styles = StyleSheet.create({
   },
   headerAction: {
     ...typography.caption,
-    color: colors.muted,
-    fontWeight: "600",
+    color: colors.foregroundMuted,
+    fontFamily: "Inter_600SemiBold",
   },
   title: {
     color: colors.foreground,
   },
   targetUser: {
     ...typography.caption,
-    color: colors.muted,
+    color: colors.foregroundMuted,
     fontStyle: "italic",
   },
   description: {
     ...typography.body,
     color: colors.foreground,
-    lineHeight: 20,
   },
   descriptionDetail: {
-    lineHeight: 21,
+    lineHeight: 23,
   },
   remove: {
+    ...typography.caption,
     color: colors.danger,
-    fontSize: 13,
+    fontFamily: "Inter_600SemiBold",
   },
   favoriteRow: {
     flexDirection: "row",
@@ -161,16 +167,9 @@ const styles = StyleSheet.create({
     gap: spacing.xs,
     marginTop: spacing.xs,
   },
-  favoriteStar: {
-    fontSize: 20,
-    color: colors.muted,
-  },
-  favoriteStarActive: {
-    color: colors.accent,
-  },
   favoriteLabel: {
     ...typography.caption,
     color: colors.foreground,
-    fontWeight: "600",
+    fontFamily: "Inter_600SemiBold",
   },
 });

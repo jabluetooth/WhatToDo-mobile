@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   block: {
-    backgroundColor: colors.border,
+    backgroundColor: colors.surfacePressed,
     borderRadius: radius.sm,
   },
 });
