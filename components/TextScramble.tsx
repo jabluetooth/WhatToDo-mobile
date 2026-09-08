@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Platform, Text, type StyleProp, type TextStyle } from "react-native";
+import { useReducedMotion } from "@/lib/useReducedMotion";
 
 // Ported from WhatToDo/app/page.tsx's TextScramble — same constants/algorithm, Text instead of
 // span. Kept in sync manually since the two apps don't share a package.
@@ -45,9 +46,14 @@ export function TextScramble({
   const [display, setDisplay] = useState(text);
   const frameRef = useRef<number | null>(null);
   const lastPlayRef = useRef(play);
+  const reducedMotion = useReducedMotion();
 
   useEffect(() => {
     if (!loading) return;
+    if (reducedMotion) {
+      setDisplay(text);
+      return;
+    }
     const update = () => setDisplay(scrambleLike(text, MIN_LOADING_SCRAMBLE_LENGTH));
     const frame = requestAnimationFrame(update);
     const id = setInterval(update, LOADING_SCRAMBLE_INTERVAL_MS);
@@ -55,10 +61,15 @@ export function TextScramble({
       cancelAnimationFrame(frame);
       clearInterval(id);
     };
-  }, [loading, text]);
+  }, [loading, reducedMotion, text]);
 
   useEffect(() => {
     if (loading) return;
+    if (reducedMotion) {
+      lastPlayRef.current = play;
+      setDisplay(text);
+      return;
+    }
     if (play === lastPlayRef.current) {
       setDisplay(text);
       return;
@@ -95,7 +106,7 @@ export function TextScramble({
     return () => {
       if (frameRef.current !== null) cancelAnimationFrame(frameRef.current);
     };
-  }, [loading, play, text]);
+  }, [loading, play, reducedMotion, text]);
 
   // fontFamily asserted last so a caller's style (e.g. typography.display, for size/color/lineHeight)
   // can't accidentally override the monospace requirement the scramble reveal depends on.

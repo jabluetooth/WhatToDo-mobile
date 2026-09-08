@@ -1,6 +1,7 @@
 import { Pressable } from "react-native";
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
 import type { BottomTabBarButtonProps } from "expo-router/js-tabs";
+import { useReducedMotion } from "@/lib/useReducedMotion";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -8,6 +9,7 @@ const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
     mouse-hover magnify effect, since there's no persistent hover state on a touchscreen. */
 export function DockTabButton({ style, onPressIn, onPressOut, pressColor: _pressColor, ref: _ref, ...rest }: BottomTabBarButtonProps) {
   const scale = useSharedValue(1);
+  const reducedMotion = useReducedMotion();
   const animatedStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
 
   return (
@@ -15,11 +17,11 @@ export function DockTabButton({ style, onPressIn, onPressOut, pressColor: _press
       {...rest}
       style={[style, animatedStyle]}
       onPressIn={(e) => {
-        scale.value = withSpring(0.82, { damping: 12, stiffness: 300 });
+        if (!reducedMotion) scale.value = withSpring(0.82, { damping: 12, stiffness: 300 });
         onPressIn?.(e);
       }}
       onPressOut={(e) => {
-        scale.value = withSpring(1, { damping: 10, stiffness: 300 });
+        if (!reducedMotion) scale.value = withSpring(1, { damping: 10, stiffness: 300 });
         onPressOut?.(e);
       }}
     />

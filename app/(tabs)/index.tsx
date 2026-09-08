@@ -135,7 +135,13 @@ export default function IdeasScreen() {
           <Text style={styles.filterTriggerLabel}>{FILTERS.find((f) => f.value === filter)?.label}</Text>
         </Pressable>
 
-        <Pressable onPress={reminder.toggle} hitSlop={8}>
+        <Pressable
+          onPress={reminder.toggle}
+          hitSlop={8}
+          accessibilityRole="button"
+          accessibilityLabel={reminder.enabled ? "Daily reminder on" : "Daily reminder off"}
+          accessibilityHint="Toggles a daily reminder notification"
+        >
           <Feather
             name={reminder.enabled ? "bell" : "bell-off"}
             size={20}

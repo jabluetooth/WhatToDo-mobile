@@ -1,6 +1,7 @@
 import { type ReactNode } from "react";
 import { ActivityIndicator, Pressable, StyleSheet, Text, View, type StyleProp, type ViewStyle } from "react-native";
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
+import { useReducedMotion } from "@/lib/useReducedMotion";
 import { colors, radius, spacing } from "@/lib/theme";
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -18,6 +19,7 @@ interface ButtonProps {
 
 export function Button({ onPress, disabled, loading, variant = "primary", children, icon, style }: ButtonProps) {
   const scale = useSharedValue(1);
+  const reducedMotion = useReducedMotion();
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
@@ -28,10 +30,10 @@ export function Button({ onPress, disabled, loading, variant = "primary", childr
       onPress={onPress}
       disabled={disabled}
       onPressIn={() => {
-        scale.value = withSpring(0.96, { damping: 15, stiffness: 300 });
+        if (!reducedMotion) scale.value = withSpring(0.96, { damping: 15, stiffness: 300 });
       }}
       onPressOut={() => {
-        scale.value = withSpring(1, { damping: 15, stiffness: 300 });
+        if (!reducedMotion) scale.value = withSpring(1, { damping: 15, stiffness: 300 });
       }}
       style={[
         variant === "primary" ? styles.primary : styles.secondary,

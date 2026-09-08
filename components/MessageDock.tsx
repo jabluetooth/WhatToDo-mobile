@@ -1,7 +1,8 @@
 import { useCallback, useRef, useState } from "react";
 import { Pressable, StyleSheet, Text, TextInput, View, type LayoutChangeEvent } from "react-native";
 import Feather from "@expo/vector-icons/Feather";
-import Animated, { FadeIn, FadeOut, useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
+import Animated, { FadeIn, FadeOut, useAnimatedStyle, useSharedValue, withSpring, withTiming } from "react-native-reanimated";
+import { useReducedMotion } from "@/lib/useReducedMotion";
 import { colors, radius, spacing } from "@/lib/theme";
 
 export interface DockCharacter {
@@ -60,6 +61,7 @@ export function MessageDock({
   const measured = useRef(false);
 
   const width = useSharedValue<number | undefined>(undefined);
+  const reducedMotion = useReducedMotion();
   const isExpanded = expandedIndex !== null;
   const selected = isExpanded ? characters[expandedIndex] : null;
 
@@ -77,7 +79,9 @@ export function MessageDock({
 
   const open = (index: number) => {
     setExpandedIndex(index);
-    width.value = withSpring(expandedWidth, { damping: 30, stiffness: 300, mass: 0.8 });
+    width.value = reducedMotion
+      ? withTiming(expandedWidth, { duration: 150 })
+      : withSpring(expandedWidth, { damping: 30, stiffness: 300, mass: 0.8 });
     onCharacterSelect?.(characters[index], index);
     onDockToggle?.(true);
   };
@@ -85,7 +89,9 @@ export function MessageDock({
   const close = () => {
     setExpandedIndex(null);
     setMessage("");
-    width.value = withSpring(collapsedWidth.current, { damping: 35, stiffness: 500, mass: 0.6 });
+    width.value = reducedMotion
+      ? withTiming(collapsedWidth.current, { duration: 150 })
+      : withSpring(collapsedWidth.current, { damping: 35, stiffness: 500, mass: 0.6 });
     onDockToggle?.(false);
   };
 

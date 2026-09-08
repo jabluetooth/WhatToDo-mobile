@@ -8,6 +8,7 @@ import {
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
+import { useReducedMotion } from "@/lib/useReducedMotion";
 
 const SWIPE_THRESHOLD = 120;
 const SCREEN_WIDTH = Dimensions.get("window").width;
@@ -22,10 +23,12 @@ interface UseSwipeGestureOptions {
 export function useSwipeGesture({ onSwipeRight, onSwipeLeft }: UseSwipeGestureOptions) {
   const translateX = useSharedValue(0);
   const translateY = useSharedValue(0);
+  const reducedMotion = useReducedMotion();
 
   function flyOut(direction: 1 | -1, callback: () => void) {
-    translateX.value = withTiming(direction * SCREEN_WIDTH * 1.5, { duration: FLY_OUT_DURATION });
-    setTimeout(callback, FLY_OUT_DURATION);
+    const duration = reducedMotion ? 0 : FLY_OUT_DURATION;
+    translateX.value = withTiming(direction * SCREEN_WIDTH * 1.5, { duration });
+    setTimeout(callback, duration);
   }
 
   const gesture = Gesture.Pan()
@@ -45,7 +48,9 @@ export function useSwipeGesture({ onSwipeRight, onSwipeLeft }: UseSwipeGestureOp
     });
 
   const animatedStyle = useAnimatedStyle(() => {
-    const rotate = interpolate(translateX.value, [-SCREEN_WIDTH, SCREEN_WIDTH], [-12, 12], Extrapolation.CLAMP);
+    const rotate = reducedMotion
+      ? 0
+      : interpolate(translateX.value, [-SCREEN_WIDTH, SCREEN_WIDTH], [-12, 12], Extrapolation.CLAMP);
     return {
       transform: [{ translateX: translateX.value }, { translateY: translateY.value }, { rotate: `${rotate}deg` }],
     };

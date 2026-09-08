@@ -11,6 +11,7 @@ import Animated, {
   withSpring,
 } from "react-native-reanimated";
 import { Badge } from "@/components/Badge";
+import { useReducedMotion } from "@/lib/useReducedMotion";
 import { colors, spacing, radius, typography } from "@/lib/theme";
 import type { RandomIdea } from "@/lib/types";
 
@@ -94,10 +95,12 @@ function FavoriteToggle({
   onPress: () => void;
 }) {
   const scale = useSharedValue(1);
+  const reducedMotion = useReducedMotion();
 
   useEffect(() => {
+    if (reducedMotion) return;
     scale.value = withSequence(withSpring(1.3, { damping: 8, stiffness: 300 }), withSpring(1, { damping: 10 }));
-  }, [favorited, scale]);
+  }, [favorited, reducedMotion, scale]);
 
   const animatedStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
 

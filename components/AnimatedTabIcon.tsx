@@ -1,6 +1,7 @@
 import { useEffect, type ReactNode } from "react";
 import { StyleSheet } from "react-native";
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
+import { useReducedMotion } from "@/lib/useReducedMotion";
 import { colors, radius } from "@/lib/theme";
 
 interface AnimatedTabIconProps {
@@ -11,10 +12,11 @@ interface AnimatedTabIconProps {
 /** Circular avatar-bubble backdrop per tab, matching MessageDock's character-avatar look. */
 export function AnimatedTabIcon({ focused, children }: AnimatedTabIconProps) {
   const scale = useSharedValue(1);
+  const reducedMotion = useReducedMotion();
 
   useEffect(() => {
-    scale.value = withSpring(focused ? 1.15 : 1, { damping: 12, stiffness: 250 });
-  }, [focused, scale]);
+    scale.value = reducedMotion ? 1 : withSpring(focused ? 1.15 : 1, { damping: 12, stiffness: 250 });
+  }, [focused, reducedMotion, scale]);
 
   const animatedStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
 

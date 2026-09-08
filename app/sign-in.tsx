@@ -16,7 +16,10 @@ export default function SignIn() {
   return (
     <View style={styles.container}>
       <Animated.View entering={FadeInDown.duration(500)} style={styles.hero}>
-        <Text style={styles.wordmark}>7</Text>
+        {/* Decorative — the actual app name is the visible, accessible title right below it. */}
+        <Text style={styles.wordmark} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+          7
+        </Text>
         <Text style={styles.title}>What To Do</Text>
         <Text style={styles.subtitle}>Browse app ideas and save the ones worth building.</Text>
       </Animated.View>
