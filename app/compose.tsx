@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
   close: { width: 44, height: 44, alignItems: "center", justifyContent: "center", marginRight: -10 },
   body: { paddingHorizontal: 20, paddingTop: 10, paddingBottom: 24, gap: 22 },
   titleWords: { justifyContent: "flex-start", columnGap: 10 },
-  title: { fontFamily: fonts.display, fontSize: 52, lineHeight: 58, color: colors.foreground },
+  title: { fontFamily: fonts.display, fontSize: 52, lineHeight: 65, color: colors.foreground },
   input: {
     minHeight: 150,
     borderWidth: 1,

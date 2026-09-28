@@ -174,15 +174,15 @@ function Stage({ loading, idea, drawNumber, error, capReached, saved, onSave, on
         <GestureDetector gesture={swipe}>
           <Animated.View style={[styles.centre, swipeStyle]}>
             {spinning && (
-              <View style={[styles.reelBox, { height: reelSize * 1.45 }]} accessibilityLabel="Rolling an idea">
+              <View style={[styles.reelBox, { height: reelSize * 1.5 }]} accessibilityLabel="Rolling an idea">
                 {reduced ? (
-                  <Text style={[styles.reelText, { fontSize: reelSize, lineHeight: Math.round(reelSize * 1.15) }]}>ROLLING…</Text>
+                  <Text style={[styles.reelText, { fontSize: reelSize, lineHeight: Math.round(reelSize * 1.25) }]}>ROLLING…</Text>
                 ) : (
                   <Animated.Text
                     key={tick}
                     entering={reelFlick}
                     numberOfLines={1}
-                    style={[styles.reelText, { fontSize: reelSize, lineHeight: Math.round(reelSize * 1.15) }]}
+                    style={[styles.reelText, { fontSize: reelSize, lineHeight: Math.round(reelSize * 1.25) }]}
                   >
                     {decoy.toUpperCase()}
                   </Animated.Text>
@@ -302,7 +302,7 @@ function LandWord({ word, size, delay }: { word: string; size: number; delay: nu
   }));
   return (
     <View style={[styles.wordMask, { paddingVertical: size * 0.18, marginVertical: -size * 0.18 }]}>
-      <Animated.Text style={[styles.word, { fontSize: size, lineHeight: Math.round(size * 1.12) }, style]}>{word}</Animated.Text>
+      <Animated.Text style={[styles.word, { fontSize: size, lineHeight: Math.round(size * 1.25) }, style]}>{word}</Animated.Text>
     </View>
   );
 }
@@ -413,7 +413,7 @@ const styles = StyleSheet.create({
   reelText: { fontFamily: fonts.display, color: colors.accent, textAlign: "center" },
 
   message: { alignItems: "center", gap: 14, paddingHorizontal: 8 },
-  bigLine: { fontFamily: fonts.display, fontSize: 64, lineHeight: 72, color: colors.foreground, textAlign: "center" },
+  bigLine: { fontFamily: fonts.display, fontSize: 64, lineHeight: 80, color: colors.foreground, textAlign: "center" },
   sub: { ...typography.body, color: colors.muted, textAlign: "center" },
 
   landed: { alignItems: "center", width: "100%" },

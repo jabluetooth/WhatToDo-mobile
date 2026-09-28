@@ -214,7 +214,7 @@ const styles = StyleSheet.create({
   back: { width: 44, height: 44, alignItems: "center", justifyContent: "center" },
   body: { paddingHorizontal: 20, paddingTop: 12, gap: 28 },
   mono: { ...typography.label, color: colors.muted },
-  title: { fontFamily: fonts.display, fontSize: 48, lineHeight: 54, color: colors.foreground, marginTop: 6 },
+  title: { fontFamily: fonts.display, fontSize: 48, lineHeight: 60, color: colors.foreground, marginTop: 6 },
   prompt: { fontFamily: fonts.sansSemibold, fontSize: 17, lineHeight: 24, color: colors.foreground, marginTop: 10 },
   muted: { ...typography.body, fontSize: 15, lineHeight: 22, color: colors.muted },
   error: { ...typography.caption, color: colors.danger },
@@ -237,13 +237,13 @@ const styles = StyleSheet.create({
   },
 
   errorBox: { gap: 12, alignItems: "stretch" },
-  noDice: { fontFamily: fonts.display, fontSize: 56, lineHeight: 63, color: colors.foreground },
+  noDice: { fontFamily: fonts.display, fontSize: 56, lineHeight: 70, color: colors.foreground },
 
   note: { flexDirection: "row", gap: 10, padding: 14, borderRadius: 16, backgroundColor: colors.accentSoft },
   noteTxt: { flex: 1, ...typography.caption, color: colors.foreground, lineHeight: 19 },
 
   section: { gap: 12, paddingTop: 20, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.line },
-  sectionHead: { fontFamily: fonts.display, fontSize: 26, lineHeight: 29, color: colors.foreground, textTransform: "uppercase" },
+  sectionHead: { fontFamily: fonts.display, fontSize: 26, lineHeight: 32, color: colors.foreground, textTransform: "uppercase" },
   sectionNum: { fontFamily: fonts.mono, fontSize: 13, color: colors.accent },
   stackRow: { gap: 4, paddingVertical: 12 },
   divider: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.line },

@@ -87,5 +87,5 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 0 },
     elevation: 12,
   },
-  label: { fontFamily: fonts.display, fontSize: 30, lineHeight: 34, color: colors.accentInk, marginTop: 4 },
+  label: { fontFamily: fonts.display, fontSize: 30, lineHeight: 38, color: colors.accentInk, marginTop: 4 },
 });

@@ -151,7 +151,7 @@ export default function IdeasScreen() {
             words={["WHAT", "TO", "DO"]}
             delay={150}
             step={100}
-            wordStyle={[styles.headWord, { fontSize: hs, lineHeight: Math.round(hs * 1.12) }]}
+            wordStyle={[styles.headWord, { fontSize: hs, lineHeight: Math.round(hs * 1.25) }]}
             style={styles.headWords}
           />
           <Question size={hs} />
@@ -229,7 +229,7 @@ function Question({ size }: { size: number }) {
   const style = useAnimatedStyle(() => ({ transform: [{ rotate: `${r.value}deg` }] }));
   return (
     <Animated.View entering={questionPop}>
-      <Animated.Text style={[styles.headWord, styles.question, { fontSize: size, lineHeight: Math.round(size * 1.12) }, style]}>?</Animated.Text>
+      <Animated.Text style={[styles.headWord, styles.question, { fontSize: size, lineHeight: Math.round(size * 1.25) }, style]}>?</Animated.Text>
     </Animated.View>
   );
 }
@@ -313,7 +313,7 @@ const styles = StyleSheet.create({
   kicker: { ...typography.label, color: colors.muted, letterSpacing: 3.3 },
   headline: { flexDirection: "row", alignItems: "flex-end", marginTop: 14 },
   headWords: { columnGap: 12 },
-  headWord: { fontFamily: fonts.display, fontSize: 84, lineHeight: 94, color: colors.foreground },
+  headWord: { fontFamily: fonts.display, fontSize: 84, lineHeight: 105, color: colors.foreground },
   question: { color: colors.accent, marginLeft: 2 },
   rollWrap: { marginTop: 36 },
   below: { marginTop: 26, alignItems: "center", justifyContent: "center", gap: 10 },

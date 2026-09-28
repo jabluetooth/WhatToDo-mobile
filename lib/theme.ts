@@ -53,10 +53,17 @@ export const fonts = {
   mono: "GeistMono_500Medium",
 };
 
+/**
+ * Anton's capitals stand 0.86em tall and its descent is 0.33em, and iOS puts the baseline at
+ * (lineHeight - descent) from the top — so any line height under ~1.19em crops the tops of the
+ * letters. Every Anton style uses at least this ratio.
+ */
+export const DISPLAY_LEADING = 1.25;
+
 export const typography = {
   /** Poster headline: huge, condensed, uppercase. */
-  display: { fontFamily: fonts.display, fontSize: 56, lineHeight: 54, textTransform: "uppercase" as const },
-  title: { fontFamily: fonts.display, fontSize: 34, lineHeight: 36, textTransform: "uppercase" as const },
+  display: { fontFamily: fonts.display, fontSize: 56, lineHeight: 70, textTransform: "uppercase" as const },
+  title: { fontFamily: fonts.display, fontSize: 34, lineHeight: 42, textTransform: "uppercase" as const },
   heading: { fontFamily: fonts.sansSemibold, fontSize: 18, lineHeight: 24 },
   body: { fontFamily: fonts.sans, fontSize: 16, lineHeight: 23 },
   caption: { fontFamily: fonts.sansMedium, fontSize: 13, lineHeight: 18 },
