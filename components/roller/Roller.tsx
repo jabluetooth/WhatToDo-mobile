@@ -152,11 +152,6 @@ function Stage({ loading, idea, drawNumber, error, capReached, saved, onSave, on
               {spinning ? "Rolling" : "Draw"} {drawLabel}
             </Text>
           </View>
-          {landed && idea && (
-            <Animated.View key={`tag-${drawNumber}`} entering={enterDrop(500)} style={[styles.tag, { borderColor: ink }]}>
-              <Text style={[styles.mono, { color: ink }]}>{idea.platformTag}</Text>
-            </Animated.View>
-          )}
           <AnimatedPressable
             scale="strong"
             haptic="light"
@@ -269,7 +264,11 @@ function LandedIdea({ idea, drawNumber, width, height }: { idea: RandomIdea; dra
   const size = posterSize(idea.title, width, height);
   const words = idea.title.toUpperCase().split(/\s+/);
   return (
-    <View key={drawNumber} style={styles.landed} accessible accessibilityLabel={`${idea.title}. ${idea.targetUser}. ${idea.description}`}>
+    <View key={drawNumber} style={styles.landed} accessible accessibilityLabel={`${idea.platformTag} idea. ${idea.title}. ${idea.targetUser}. ${idea.description}`}>
+      {/* Platform first, right above the title: it drops in just before the words rise. */}
+      <Animated.View entering={enterDrop(60)} style={styles.tag}>
+        <Text style={[styles.mono, { color: colors.accentInk }]}>{idea.platformTag}</Text>
+      </Animated.View>
       <View style={styles.titleRow}>
         {words.map((w, i) => (
           <LandWord key={`${w}-${i}`} word={w} size={size} delay={150 + i * 70} />
@@ -397,7 +396,15 @@ const styles = StyleSheet.create({
   headerLeft: { flexDirection: "row", alignItems: "center", gap: 8 },
   dot: { width: 8, height: 8, borderRadius: 4 },
   mono: { ...typography.label },
-  tag: { borderWidth: 1, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 5 },
+  tag: {
+    alignSelf: "center",
+    borderWidth: 1.5,
+    borderColor: colors.accentInk,
+    borderRadius: 999,
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    marginBottom: 14,
+  },
   close: { width: 44, height: 44, alignItems: "center", justifyContent: "center", marginRight: -10 },
 
   centre: { flex: 1, alignItems: "center", justifyContent: "center" },
