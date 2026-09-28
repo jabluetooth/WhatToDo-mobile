@@ -14,12 +14,18 @@ export function Grain() {
   // under the new architecture on iOS — which read as a faint box behind the header wordmark.
   // A grid of the same (cached) 160pt tile covers the screen on every platform.
   const { width, height } = useWindowDimensions();
-  const cols = Math.ceil(width / GRAIN_TILE);
+  // One extra column and row so the last partial tiles reach past the edges; each tile is placed
+  // at an exact position (a wrapping row dropped the partial column onto the next line).
+  const cols = Math.ceil(width / GRAIN_TILE) + 1;
   const rows = Math.ceil(height / GRAIN_TILE) + 1;
   return (
     <View style={[StyleSheet.absoluteFill, styles.grain]} pointerEvents="none" accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
       {Array.from({ length: rows * cols }, (_, i) => (
-        <Image key={i} source={GRAIN} style={styles.grainTile} />
+        <Image
+          key={i}
+          source={GRAIN}
+          style={[styles.grainTile, { left: (i % cols) * GRAIN_TILE, top: Math.floor(i / cols) * GRAIN_TILE }]}
+        />
       ))}
     </View>
   );
@@ -29,8 +35,8 @@ const GRAIN = require("../assets/grain.png");
 const GRAIN_TILE = 160;
 
 const styles = StyleSheet.create({
-  grain: { flexDirection: "row", flexWrap: "wrap", opacity: 0.05, overflow: "hidden" },
-  grainTile: { width: GRAIN_TILE, height: GRAIN_TILE },
+  grain: { opacity: 0.05, overflow: "hidden" },
+  grainTile: { position: "absolute", width: GRAIN_TILE, height: GRAIN_TILE },
 });
 
 /**
