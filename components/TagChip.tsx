@@ -1,5 +1,6 @@
-import { Pressable, StyleSheet, Text } from "react-native";
-import { colors, radius, spacing, typography } from "@/lib/theme";
+import { StyleSheet, Text } from "react-native";
+import { AnimatedPressable } from "@/lib/motion";
+import { colors, fonts, radius, spacing } from "@/lib/theme";
 
 interface TagChipProps {
   label: string;
@@ -7,39 +8,31 @@ interface TagChipProps {
   onPress?: () => void;
 }
 
+/** Filter/tag pill: hairline outline, filled lime when chosen (web: rounded-full border-line). */
 export function TagChip({ label, selected, onPress }: TagChipProps) {
   return (
-    <Pressable
+    <AnimatedPressable
       onPress={onPress}
-      style={({ pressed }) => [styles.chip, selected && styles.chipSelected, pressed && styles.pressed]}
+      scale="strong"
+      haptic="selection"
+      accessibilityRole="button"
+      accessibilityState={{ selected: !!selected }}
+      style={[styles.chip, selected && styles.chipSelected]}
     >
       <Text style={[styles.text, selected && styles.textSelected]}>{label}</Text>
-    </Pressable>
+    </AnimatedPressable>
   );
 }
 
 const styles = StyleSheet.create({
   chip: {
-    backgroundColor: colors.background,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.line,
     borderRadius: radius.full,
-    paddingHorizontal: spacing.md,
+    paddingHorizontal: 14,
     paddingVertical: spacing.sm,
   },
-  chipSelected: {
-    backgroundColor: colors.foreground,
-    borderColor: colors.foreground,
-  },
-  pressed: {
-    opacity: 0.7,
-  },
-  text: {
-    ...typography.caption,
-    color: colors.foregroundMuted,
-  },
-  textSelected: {
-    color: colors.background,
-    fontFamily: "Inter_600SemiBold",
-  },
+  chipSelected: { backgroundColor: colors.accent, borderColor: colors.accent },
+  text: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.muted },
+  textSelected: { color: colors.accentInk, fontFamily: fonts.sansSemibold },
 });

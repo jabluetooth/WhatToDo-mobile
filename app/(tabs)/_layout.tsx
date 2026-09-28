@@ -4,6 +4,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { Redirect, Tabs } from "expo-router";
 import { Image, Text, View } from "react-native";
 import { DockTabBar } from "@/components/DockTabBar";
+import { DiceIcon } from "@/components/fx";
 import { ProfileSheet } from "@/components/ProfileSheet";
 import { getInitials } from "@/lib/avatarInitials";
 import { useAuth } from "@/lib/auth";
@@ -35,7 +36,7 @@ export default function TabsLayout() {
           })}
           options={{
             title: "Ideas",
-            tabBarIcon: ({ color, size }) => <Feather name="zap" size={size} color={color} />,
+            tabBarIcon: ({ color, size }) => <DiceIcon size={size} color={color} />,
           }}
         />
         <Tabs.Screen
@@ -73,7 +74,7 @@ export default function TabsLayout() {
                     justifyContent: "center",
                   }}
                 >
-                  <Text style={{ fontFamily: "Inter_700Bold", fontSize: size * 0.4, color }}>
+                  <Text style={{ fontFamily: "Geist_700Bold", fontSize: size * 0.4, color }}>
                     {getInitials(user.name)}
                   </Text>
                 </View>

@@ -30,7 +30,8 @@ export function DockTabBar({ state, descriptors, navigation, insets }: BottomTab
           {state.routes.map((route, index) => {
             const { options } = descriptors[route.key];
             const focused = state.index === index;
-            const color = focused ? colors.foreground : colors.foregroundMuted;
+            // Ink on the active tab's lime disc, muted cream elsewhere.
+            const color = focused ? colors.accentInk : colors.muted;
             const label =
               options.tabBarAccessibilityLabel ??
               (typeof options.title === "string" ? options.title : route.name);
@@ -87,13 +88,13 @@ const styles = StyleSheet.create({
   pill: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 14,
-    backgroundColor: colors.surfaceElevated,
+    gap: 10,
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: colors.borderStrong,
+    borderColor: colors.line,
     borderRadius: radius.full,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
+    paddingHorizontal: 8,
+    paddingVertical: 6,
     overflow: "hidden",
   },
 });

@@ -1,53 +1,61 @@
 import { type ReactNode } from "react";
-import { ActivityIndicator, Pressable, StyleSheet, Text, View, type StyleProp, type ViewStyle } from "react-native";
-import Animated, { useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
-import { useReducedMotion } from "@/lib/useReducedMotion";
-import { colors, radius, spacing } from "@/lib/theme";
+import { ActivityIndicator, StyleSheet, Text, View, type StyleProp, type ViewStyle } from "react-native";
+import { AnimatedPressable, type HapticKind } from "@/lib/motion";
+import { colors, fonts, radius, spacing } from "@/lib/theme";
 
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+type Variant = "primary" | "secondary" | "ink";
 
 interface ButtonProps {
   onPress: () => void;
   disabled?: boolean;
   loading?: boolean;
-  variant?: "primary" | "secondary";
+  /**
+   * primary: lime pill with ink text (the one action that matters on a screen).
+   * secondary: hairline outline pill.
+   * ink: ink pill with lime text, for use on top of a lime flood (web's "Build this").
+   */
+  variant?: Variant;
   children: ReactNode;
   /** Rendered left of the label with a fixed gap — pass a sized vector icon element. */
   icon?: ReactNode;
+  /** Rendered right of the label (e.g. an arrow). */
+  trailing?: ReactNode;
+  haptic?: HapticKind;
+  accessibilityLabel?: string;
   style?: StyleProp<ViewStyle>;
 }
 
-export function Button({ onPress, disabled, loading, variant = "primary", children, icon, style }: ButtonProps) {
-  const scale = useSharedValue(1);
-  const reducedMotion = useReducedMotion();
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
-  }));
-
+/** Pill buttons matching the web app's rounded-full controls. */
+export function Button({
+  onPress,
+  disabled,
+  loading,
+  variant = "primary",
+  children,
+  icon,
+  trailing,
+  haptic = "light",
+  accessibilityLabel,
+  style,
+}: ButtonProps) {
+  const textColor = variant === "primary" ? colors.accentInk : variant === "ink" ? colors.accent : colors.foreground;
   return (
     <AnimatedPressable
       onPress={onPress}
-      disabled={disabled}
-      onPressIn={() => {
-        if (!reducedMotion) scale.value = withSpring(0.96, { damping: 15, stiffness: 300 });
-      }}
-      onPressOut={() => {
-        if (!reducedMotion) scale.value = withSpring(1, { damping: 15, stiffness: 300 });
-      }}
-      style={[
-        variant === "primary" ? styles.primary : styles.secondary,
-        disabled && styles.disabled,
-        animatedStyle,
-        style,
-      ]}
+      disabled={disabled || loading}
+      haptic={haptic}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel ?? (typeof children === "string" ? children : undefined)}
+      accessibilityState={{ disabled: !!(disabled || loading), busy: !!loading }}
+      style={[styles.base, styles[variant], style]}
     >
       {loading ? (
-        <ActivityIndicator color={variant === "primary" ? colors.background : colors.foreground} />
+        <ActivityIndicator color={textColor} />
       ) : typeof children === "string" ? (
         <View style={styles.content}>
           {icon}
-          <Text style={variant === "primary" ? styles.primaryText : styles.secondaryText}>{children}</Text>
+          <Text style={[styles.text, { color: textColor }]}>{children}</Text>
+          {trailing}
         </View>
       ) : (
         children
@@ -57,37 +65,16 @@ export function Button({ onPress, disabled, loading, variant = "primary", childr
 }
 
 const styles = StyleSheet.create({
-  primary: {
-    backgroundColor: colors.foreground,
-    borderRadius: radius.md,
-    paddingVertical: spacing.md,
+  base: {
+    minHeight: 52,
+    borderRadius: radius.full,
+    paddingHorizontal: spacing.lg,
     alignItems: "center",
     justifyContent: "center",
   },
-  secondary: {
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.md,
-    paddingVertical: spacing.md,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  disabled: {
-    opacity: 0.6,
-  },
-  content: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.xs,
-  },
-  primaryText: {
-    color: colors.background,
-    fontFamily: "Inter_700Bold",
-    fontSize: 15,
-  },
-  secondaryText: {
-    color: colors.foreground,
-    fontFamily: "Inter_600SemiBold",
-    fontSize: 15,
-  },
+  primary: { backgroundColor: colors.accent },
+  ink: { backgroundColor: colors.accentInk },
+  secondary: { borderWidth: 1.5, borderColor: colors.lineStrong },
+  content: { flexDirection: "row", alignItems: "center", gap: spacing.sm },
+  text: { fontFamily: fonts.sansSemibold, fontSize: 16 },
 });

@@ -94,6 +94,6 @@ const styles = StyleSheet.create({
   },
   optionLabelActive: {
     color: colors.foreground,
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "Geist_600SemiBold",
   },
 });

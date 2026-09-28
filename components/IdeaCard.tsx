@@ -142,7 +142,7 @@ const styles = StyleSheet.create({
   headerAction: {
     ...typography.caption,
     color: colors.foregroundMuted,
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "Geist_600SemiBold",
   },
   title: {
     color: colors.foreground,
@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
   remove: {
     ...typography.caption,
     color: colors.danger,
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "Geist_600SemiBold",
   },
   favoriteRow: {
     flexDirection: "row",
@@ -173,6 +173,6 @@ const styles = StyleSheet.create({
   favoriteLabel: {
     ...typography.caption,
     color: colors.foreground,
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "Geist_600SemiBold",
   },
 });

@@ -1,19 +1,28 @@
-// Matches the web app's forced-dark, monochrome-by-design palette (WhatToDo/app/globals.css) —
-// no accent color anywhere, on either app, is a deliberate brand choice, not an oversight.
+// "The Draw" — mirrors the web app's palette and type (WhatToDo/app/globals.css, app/layout.tsx):
+// an ink-black ground, cream ink, and one loud acid-lime accent kept for the moment of choice (the
+// roll, the primary action, the landed idea's flood) so it keeps its punch. Everything else stays
+// neutral.
 export const colors = {
-  background: "#0A0A0B",
-  // Tonal elevation steps (Material 3's dark-theme approach: higher elevation = lighter surface)
-  // instead of shadows, which don't read against a near-black background.
-  surface: "#151517",
-  surfaceElevated: "#1C1C1F",
-  surfacePressed: "#242428",
-  border: "rgba(255,255,255,0.08)",
-  borderStrong: "rgba(255,255,255,0.16)",
-  foreground: "#F2F2F3",
-  foregroundMuted: "#A1A1AA",
-  foregroundSubtle: "#6B6B70",
+  background: "#0B0B09",
+  surface: "#151512",
+  // Tonal elevation instead of shadows, which don't read against near-black.
+  surfaceElevated: "#1C1C18",
+  surfacePressed: "#24241F",
+  foreground: "#F3F1EA",
+  muted: "#8B887D",
+  line: "rgba(243,241,234,0.10)",
+  lineStrong: "rgba(243,241,234,0.18)",
+  accent: "#D4FF3A",
+  accentInk: "#0B0B09",
+  accentSoft: "rgba(212,255,58,0.12)",
   danger: "#F87171",
   success: "#4ADE80",
+
+  // Older names, kept so every screen reads from one palette while they're migrated.
+  foregroundMuted: "#8B887D",
+  foregroundSubtle: "#5F5D55",
+  border: "rgba(243,241,234,0.10)",
+  borderStrong: "rgba(243,241,234,0.18)",
 };
 
 export const spacing = {
@@ -29,23 +38,34 @@ export const radius = {
   sm: 8,
   md: 12,
   lg: 16,
-  xl: 20,
+  xl: 24,
   full: 999,
 };
 
-// Explicit fontFamily per weight — React Native ignores fontWeight on a custom font unless it's a
-// variable font, so each weight needs its own loaded family name (see app/_layout.tsx's useFonts).
+// One family name per weight — React Native ignores fontWeight on custom fonts.
+export const fonts = {
+  /** Anton: condensed display face for poster moments, always uppercase. */
+  display: "Anton_400Regular",
+  sans: "Geist_400Regular",
+  sansMedium: "Geist_500Medium",
+  sansSemibold: "Geist_600SemiBold",
+  sansBold: "Geist_700Bold",
+  mono: "GeistMono_500Medium",
+};
+
 export const typography = {
-  display: { fontFamily: "Inter_700Bold", fontSize: 40, lineHeight: 46 },
-  title: { fontFamily: "Inter_700Bold", fontSize: 24, lineHeight: 30 },
-  heading: { fontFamily: "Inter_600SemiBold", fontSize: 18, lineHeight: 24 },
-  body: { fontFamily: "Inter_400Regular", fontSize: 16, lineHeight: 22 },
-  caption: { fontFamily: "Inter_500Medium", fontSize: 13, lineHeight: 18 },
+  /** Poster headline: huge, condensed, uppercase. */
+  display: { fontFamily: fonts.display, fontSize: 56, lineHeight: 54, textTransform: "uppercase" as const },
+  title: { fontFamily: fonts.display, fontSize: 34, lineHeight: 36, textTransform: "uppercase" as const },
+  heading: { fontFamily: fonts.sansSemibold, fontSize: 18, lineHeight: 24 },
+  body: { fontFamily: fonts.sans, fontSize: 16, lineHeight: 23 },
+  caption: { fontFamily: fonts.sansMedium, fontSize: 13, lineHeight: 18 },
+  /** The web's mono kicker: small, uppercase, widely tracked. */
   label: {
-    fontFamily: "Inter_600SemiBold",
-    fontSize: 12,
-    lineHeight: 16,
+    fontFamily: fonts.mono,
+    fontSize: 11,
+    lineHeight: 14,
     textTransform: "uppercase" as const,
-    letterSpacing: 0.4,
+    letterSpacing: 2.6,
   },
 };

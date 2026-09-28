@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { StyleSheet, View, type DimensionValue } from "react-native";
 import Animated, {
   Easing,
+  ReduceMotion,
   useAnimatedStyle,
   useSharedValue,
   withRepeat,
@@ -10,39 +11,37 @@ import Animated, {
 import { colors, radius, spacing } from "@/lib/theme";
 
 function Shimmer({ width, height }: { width: DimensionValue; height: number }) {
-  const opacity = useSharedValue(0.4);
+  const opacity = useSharedValue(0.35);
 
   useEffect(() => {
-    opacity.value = withRepeat(withTiming(1, { duration: 700, easing: Easing.inOut(Easing.ease) }), -1, true);
+    opacity.value = withRepeat(
+      withTiming(0.8, { duration: 900, easing: Easing.inOut(Easing.sin), reduceMotion: ReduceMotion.System }),
+      -1,
+      true,
+    );
   }, [opacity]);
 
   const animatedStyle = useAnimatedStyle(() => ({ opacity: opacity.value }));
-
   return <Animated.View style={[styles.block, { width, height }, animatedStyle]} />;
 }
 
+/** Placeholder for one favorites row while the list loads. */
 export function SkeletonCard() {
   return (
-    <View style={styles.card}>
-      <Shimmer width={64} height={18} />
-      <Shimmer width="70%" height={20} />
-      <Shimmer width="40%" height={14} />
-      <Shimmer width="100%" height={40} />
+    <View style={styles.row}>
+      <Shimmer width="62%" height={22} />
+      <Shimmer width="38%" height={13} />
+      <Shimmer width="92%" height={13} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  card: {
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.lg,
-    padding: spacing.lg,
+  row: {
+    paddingVertical: spacing.lg,
     gap: spacing.sm,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: colors.line,
   },
-  block: {
-    backgroundColor: colors.surfacePressed,
-    borderRadius: radius.sm,
-  },
+  block: { backgroundColor: colors.surfacePressed, borderRadius: radius.sm },
 });

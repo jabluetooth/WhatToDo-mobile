@@ -1,10 +1,11 @@
-import { StyleSheet, Text, View } from "react-native";
-import { colors, radius, spacing, typography } from "@/lib/theme";
+import { StyleSheet, Text, View, type StyleProp, type ViewStyle } from "react-native";
+import { colors, radius, typography } from "@/lib/theme";
 
-export function Badge({ label }: { label: string }) {
+/** Outlined mono tag, e.g. the idea's platform (web: the roller's `border-current` pill). */
+export function Badge({ label, color = colors.muted, style }: { label: string; color?: string; style?: StyleProp<ViewStyle> }) {
   return (
-    <View style={styles.badge}>
-      <Text style={styles.text}>{label}</Text>
+    <View style={[styles.badge, { borderColor: color }, style]}>
+      <Text style={[styles.text, { color }]}>{label}</Text>
     </View>
   );
 }
@@ -12,15 +13,10 @@ export function Badge({ label }: { label: string }) {
 const styles = StyleSheet.create({
   badge: {
     alignSelf: "flex-start",
-    backgroundColor: colors.background,
     borderWidth: 1,
-    borderColor: colors.border,
     borderRadius: radius.full,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 4,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
   },
-  text: {
-    ...typography.label,
-    color: colors.foregroundMuted,
-  },
+  text: { ...typography.label },
 });

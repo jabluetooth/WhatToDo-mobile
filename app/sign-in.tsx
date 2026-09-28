@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   wordmark: {
-    fontFamily: "Inter_700Bold",
+    fontFamily: "Geist_700Bold",
     fontSize: 56,
     color: colors.foreground,
     marginBottom: spacing.sm,

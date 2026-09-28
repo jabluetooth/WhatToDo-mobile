@@ -153,7 +153,7 @@ const styles = StyleSheet.create({
   linkAction: {
     ...typography.caption,
     color: colors.foreground,
-    fontFamily: "Inter_600SemiBold",
+    fontFamily: "Geist_600SemiBold",
   },
   buttonRow: {
     flexDirection: "row",
