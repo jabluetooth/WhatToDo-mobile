@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useFavorites } from "@/lib/stores/favorites";
 import Feather from "@expo/vector-icons/Feather";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Redirect, Tabs } from "expo-router";
@@ -14,6 +15,13 @@ import { colors } from "@/lib/theme";
 export default function TabsLayout() {
   const { token, loading, user } = useAuth();
   const [profileVisible, setProfileVisible] = useState(false);
+
+  // Favorites: show the cached list straight away, then refresh from the server.
+  useEffect(() => {
+    if (!token) return;
+    const { hydrate, sync } = useFavorites.getState();
+    hydrate().then(() => sync(token));
+  }, [token]);
 
   if (!loading && !token) {
     return <Redirect href="/sign-in" />;
