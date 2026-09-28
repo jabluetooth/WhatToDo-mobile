@@ -1,8 +1,8 @@
-import * as SecureStore from "expo-secure-store";
 import * as WebBrowser from "expo-web-browser";
 import * as Linking from "expo-linking";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { fetchMe, githubStartUrl } from "@/lib/api";
+import { deleteSecureItem, getSecureItem, setSecureItem } from "@/lib/secureStore";
 import type { MobileUser } from "@/lib/types";
 
 const TOKEN_KEY = "whattodo_mobile_token";
@@ -34,7 +34,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(me);
     } catch {
       // Stored token is no longer valid (expired/revoked) — drop it and fall back to signed-out.
-      await SecureStore.deleteItemAsync(TOKEN_KEY);
+      await deleteSecureItem(TOKEN_KEY);
       setToken(null);
       setUser(null);
     }
@@ -42,7 +42,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     (async () => {
-      const stored = await SecureStore.getItemAsync(TOKEN_KEY);
+      const stored = await getSecureItem(TOKEN_KEY);
       if (stored) {
         setToken(stored);
         await loadProfile(stored);
@@ -78,7 +78,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      await SecureStore.setItemAsync(TOKEN_KEY, newToken);
+      await setSecureItem(TOKEN_KEY, newToken);
       setToken(newToken);
       await loadProfile(newToken);
     } catch {
@@ -89,7 +89,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [loadProfile]);
 
   const signOut = useCallback(async () => {
-    await SecureStore.deleteItemAsync(TOKEN_KEY);
+    await deleteSecureItem(TOKEN_KEY);
     setToken(null);
     setUser(null);
   }, []);

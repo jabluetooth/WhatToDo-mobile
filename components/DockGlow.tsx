@@ -11,8 +11,8 @@ export function DockGlow() {
     <Svg style={StyleSheet.absoluteFill} pointerEvents="none">
       <Defs>
         <RadialGradient id="dockGlow" cx="50%" cy="0%" r="75%">
-          <Stop offset="0%" stopColor="#FFFFFF" stopOpacity={0.12} />
-          <Stop offset="55%" stopColor="#FFFFFF" stopOpacity={0.04} />
+          <Stop offset="0%" stopColor="#FFFFFF" stopOpacity={0.18} />
+          <Stop offset="55%" stopColor="#FFFFFF" stopOpacity={0.07} />
           <Stop offset="100%" stopColor="#FFFFFF" stopOpacity={0} />
         </RadialGradient>
       </Defs>

@@ -1,5 +1,5 @@
 import * as Notifications from "expo-notifications";
-import * as SecureStore from "expo-secure-store";
+import { deleteSecureItem, getSecureItem, setSecureItem } from "@/lib/secureStore";
 
 const ENABLED_KEY = "whattodo_daily_reminder_enabled";
 const NOTIFICATION_ID_KEY = "whattodo_daily_reminder_notification_id";
@@ -16,7 +16,7 @@ Notifications.setNotificationHandler({
 });
 
 export async function isDailyReminderEnabled(): Promise<boolean> {
-  return (await SecureStore.getItemAsync(ENABLED_KEY)) === "true";
+  return (await getSecureItem(ENABLED_KEY)) === "true";
 }
 
 export async function setDailyReminderEnabled(enabled: boolean): Promise<boolean> {
@@ -24,7 +24,7 @@ export async function setDailyReminderEnabled(enabled: boolean): Promise<boolean
     const { status } = await Notifications.requestPermissionsAsync();
     if (status !== "granted") return false;
 
-    const existingId = await SecureStore.getItemAsync(NOTIFICATION_ID_KEY);
+    const existingId = await getSecureItem(NOTIFICATION_ID_KEY);
     if (existingId) await Notifications.cancelScheduledNotificationAsync(existingId);
 
     const id = await Notifications.scheduleNotificationAsync({
@@ -38,16 +38,16 @@ export async function setDailyReminderEnabled(enabled: boolean): Promise<boolean
         minute: REMINDER_MINUTE,
       },
     });
-    await SecureStore.setItemAsync(NOTIFICATION_ID_KEY, id);
-    await SecureStore.setItemAsync(ENABLED_KEY, "true");
+    await setSecureItem(NOTIFICATION_ID_KEY, id);
+    await setSecureItem(ENABLED_KEY, "true");
     return true;
   }
 
-  const existingId = await SecureStore.getItemAsync(NOTIFICATION_ID_KEY);
+  const existingId = await getSecureItem(NOTIFICATION_ID_KEY);
   if (existingId) {
     await Notifications.cancelScheduledNotificationAsync(existingId);
-    await SecureStore.deleteItemAsync(NOTIFICATION_ID_KEY);
+    await deleteSecureItem(NOTIFICATION_ID_KEY);
   }
-  await SecureStore.setItemAsync(ENABLED_KEY, "false");
+  await setSecureItem(ENABLED_KEY, "false");
   return true;
 }

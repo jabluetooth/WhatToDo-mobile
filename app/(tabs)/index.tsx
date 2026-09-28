@@ -19,6 +19,13 @@ import { useSwipeGesture } from "@/lib/useSwipeGesture";
 import type { RandomIdea } from "@/lib/types";
 
 const QUEUE_BUFFER = 2;
+// Platform minimum tappable size (iOS HIG: 44x44pt, Material: 48x48dp) — not on the app's own
+// visual spacing scale (lib/theme.ts) since it's an accessibility floor, not a rhythm value.
+const MIN_TOUCH_TARGET = 44;
+// Keeps the error/retry banner's position in sync with the header's actual rendered height
+// (paddingTop + the row's tallest child, now the touch-target-sized bell button) instead of a
+// fixed offset that happened to match it by coincidence and would drift the moment either changed.
+const HEADER_HEIGHT = spacing.sm + MIN_TOUCH_TARGET;
 
 export default function IdeasScreen() {
   const insets = useSafeAreaInsets();
@@ -137,7 +144,7 @@ export default function IdeasScreen() {
 
         <Pressable
           onPress={reminder.toggle}
-          hitSlop={8}
+          style={styles.reminderToggle}
           accessibilityRole="button"
           accessibilityLabel={reminder.enabled ? "Daily reminder on" : "Daily reminder off"}
           accessibilityHint="Toggles a daily reminder notification"
@@ -178,7 +185,7 @@ export default function IdeasScreen() {
       ) : null}
 
       {error || reminder.error ? (
-        <View style={[styles.errorContainer, { top: insets.top + spacing.xxl }]}>
+        <View style={[styles.errorContainer, { top: insets.top + HEADER_HEIGHT + spacing.sm }]}>
           <Text style={styles.error}>{error ?? reminder.error}</Text>
           {/* Only the "stuck with no card at all" case is a dead end — an error alongside a
               visible card (e.g. a failed favorite) still has working Skip/Favorite buttons. */}
@@ -256,11 +263,17 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     borderRadius: radius.full,
     paddingHorizontal: spacing.sm,
-    paddingVertical: 6,
+    paddingVertical: spacing.sm,
   },
   filterTriggerLabel: {
     ...typography.caption,
     color: colors.foregroundMuted,
+  },
+  reminderToggle: {
+    width: MIN_TOUCH_TARGET,
+    height: MIN_TOUCH_TARGET,
+    alignItems: "center",
+    justifyContent: "center",
   },
   bottomActions: {
     position: "absolute",

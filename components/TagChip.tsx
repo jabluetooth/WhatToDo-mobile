@@ -25,7 +25,7 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     borderRadius: radius.full,
     paddingHorizontal: spacing.md,
-    paddingVertical: 6,
+    paddingVertical: spacing.sm,
   },
   chipSelected: {
     backgroundColor: colors.foreground,
