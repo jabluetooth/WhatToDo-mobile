@@ -1,4 +1,13 @@
-import type { Favorite, MobileUser, PlatformTag, PresetTag, RandomIdea } from "@/lib/types";
+import type {
+  Favorite,
+  MobileUser,
+  PlatformTag,
+  PrdSection,
+  PresetTag,
+  PromptHints,
+  RandomIdea,
+  StackRecommendation,
+} from "@/lib/types";
 
 const BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL ?? "http://localhost:3000";
 
@@ -68,6 +77,29 @@ export function updateFavorite(
 
 export function removeFavorite(token: string, id: string): Promise<void> {
   return request<void>(`/api/mobile/favorites/${id}`, token, { method: "DELETE" });
+}
+
+export type PrdResponse =
+  | { needsClarification: true; clarifyingQuestion: string }
+  | { needsClarification?: false; sections: PrdSection[]; lowConfidence: boolean };
+
+/** Writes a PRD for a prompt, or asks one clarifying question if the prompt is too vague. */
+export function generatePrd(
+  token: string,
+  body: { prompt: string; hints?: PromptHints; clarification?: { question: string; answer: string } }
+): Promise<PrdResponse> {
+  return request<PrdResponse>("/api/mobile/prd", token, { method: "POST", body: JSON.stringify(body) });
+}
+
+export async function generateStack(
+  token: string,
+  body: { prompt: string; sections: PrdSection[]; hints?: PromptHints }
+): Promise<StackRecommendation> {
+  const { stack } = await request<{ stack: StackRecommendation }>("/api/mobile/stack", token, {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+  return stack;
 }
 
 export type { MobileUser };

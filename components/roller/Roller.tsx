@@ -46,7 +46,8 @@ export interface RollerProps {
   saved: boolean;
   onSave: () => void;
   onReroll: () => void;
-  onWeb: () => void;
+  /** Write the spec for the landed idea (web: "Build this"). */
+  onBuild: () => void;
   onClose: () => void;
 }
 
@@ -87,7 +88,7 @@ export function Roller(props: RollerProps) {
   );
 }
 
-function Stage({ loading, idea, drawNumber, error, capReached, saved, onSave, onReroll, onWeb, onClose }: RollerProps) {
+function Stage({ loading, idea, drawNumber, error, capReached, saved, onSave, onReroll, onBuild, onClose }: RollerProps) {
   const reduced = useReducedMotion();
   const insets = useSafeAreaInsets();
   const { width, height } = useWindowDimensions();
@@ -211,32 +212,38 @@ function Stage({ loading, idea, drawNumber, error, capReached, saved, onSave, on
         <View style={styles.footer}>
           {landed && (
             <Animated.View key={`actions-${drawNumber}`} entering={actionsRise} style={styles.actions}>
+              <Button
+                variant="ink"
+                onPress={onBuild}
+                haptic="medium"
+                trailing={<Feather name="arrow-right" size={18} color={colors.accent} />}
+                accessibilityLabel="Build this: write its spec"
+              >
+                Build this
+              </Button>
               <View style={styles.actionRow}>
-                <Button
-                  variant="ink"
+                <AnimatedPressable
                   onPress={onSave}
                   disabled={saved}
                   haptic="success"
-                  style={styles.flex}
-                  icon={<Ionicons name={saved ? "checkmark" : "star"} size={17} color={colors.accent} />}
+                  style={styles.outlineBtn}
+                  accessibilityRole="button"
+                  accessibilityLabel={saved ? "Saved" : "Save idea"}
                 >
-                  {saved ? "Saved" : "Save"}
-                </Button>
+                  <Ionicons name={saved ? "checkmark" : "star-outline"} size={18} color={colors.accentInk} />
+                  <Text style={styles.outlineTxt}>{saved ? "Saved" : "Save"}</Text>
+                </AnimatedPressable>
                 <AnimatedPressable
                   onPress={onReroll}
                   haptic="light"
-                  style={styles.rerollBtn}
+                  style={styles.outlineBtn}
                   accessibilityRole="button"
                   accessibilityLabel="Roll again"
                 >
                   <DiceIcon size={19} color={colors.accentInk} />
-                  <Text style={styles.rerollTxt}>Roll again</Text>
+                  <Text style={styles.outlineTxt}>Roll again</Text>
                 </AnimatedPressable>
               </View>
-              <AnimatedPressable onPress={onWeb} haptic="light" style={styles.webLink} accessibilityRole="link" accessibilityLabel="Continue building on the web">
-                <Text style={styles.webTxt}>Continue on web</Text>
-                <Feather name="arrow-up-right" size={16} color={colors.accentInk} />
-              </AnimatedPressable>
               <Text style={styles.hint}>Swipe right to save · left to roll again</Text>
             </Animated.View>
           )}
@@ -419,8 +426,7 @@ const styles = StyleSheet.create({
   footer: { minHeight: 72, alignItems: "stretch", justifyContent: "flex-end" },
   actions: { gap: 14, alignItems: "stretch" },
   actionRow: { flexDirection: "row", gap: 10 },
-  flex: { flex: 1 },
-  rerollBtn: {
+  outlineBtn: {
     flex: 1,
     minHeight: 52,
     borderRadius: 999,
@@ -431,8 +437,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     gap: 8,
   },
-  rerollTxt: { fontFamily: fonts.sansSemibold, fontSize: 16, color: colors.accentInk },
-  webLink: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, paddingVertical: 6 },
-  webTxt: { fontFamily: fonts.sansSemibold, fontSize: 15, color: colors.accentInk, textDecorationLine: "underline" },
+  outlineTxt: { fontFamily: fonts.sansSemibold, fontSize: 16, color: colors.accentInk },
   hint: { ...typography.label, fontSize: 10, color: colors.accentInk, opacity: 0.55, textAlign: "center" },
 });

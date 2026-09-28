@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import Feather from "@expo/vector-icons/Feather";
-import * as WebBrowser from "expo-web-browser";
+import { useRouter } from "expo-router";
 import { useBottomTabBarHeight } from "expo-router/js-tabs";
 import { StyleSheet, Text, View, useWindowDimensions } from "react-native";
 import Animated, {
@@ -28,9 +28,9 @@ import { useAuth } from "@/lib/auth";
 import { setIdeaGenerateHandler } from "@/lib/ideaGenerate";
 import { AnimatedPressable, EASE, enterRise, fireHaptic } from "@/lib/motion";
 import { useFavorites } from "@/lib/stores/favorites";
+import { promptFromIdea, useSpec } from "@/lib/stores/spec";
 import { colors, fonts, typography } from "@/lib/theme";
 import type { RandomIdea } from "@/lib/types";
-import { continueOnWebUrl } from "@/lib/webLink";
 
 const system = ReduceMotion.System;
 const PIPELINE = ["Idea", "PRD", "Stack", "Code"];
@@ -44,6 +44,8 @@ export default function IdeasScreen() {
   const tabBarHeight = useBottomTabBarHeight();
   const { width } = useWindowDimensions();
   const { token } = useAuth();
+  const router = useRouter();
+  const startSpec = useSpec((s) => s.start);
   const save = useFavorites((s) => s.save);
   const favorites = useFavorites((s) => s.items);
 
@@ -87,6 +89,15 @@ export default function IdeasScreen() {
     if (!token || !idea || saved) return;
     const ok = await save(token, idea);
     fireHaptic(ok ? "success" : "warning");
+  };
+
+  // "Build this": close the draw and write the idea's spec (web: startPrdFromIdea).
+  const build = () => {
+    if (!token || !idea) return;
+    void startSpec(token, promptFromIdea(idea), { platform: idea.platformTag }, idea);
+    setLastIdea(idea);
+    setRollerOpen(false);
+    router.push("/spec");
   };
 
   const close = () => {
@@ -159,9 +170,17 @@ export default function IdeasScreen() {
               <Text style={styles.lastTitle} numberOfLines={1}>{lastIdea.title}</Text>
               <Feather name="arrow-up-right" size={15} color={colors.muted} />
             </AnimatedPressable>
-          ) : (
-            <Text style={styles.hint}>Tap Roll, or tap the dice below</Text>
-          )}
+          ) : null}
+          <AnimatedPressable
+            onPress={() => router.push("/compose")}
+            scale="strong"
+            haptic="light"
+            style={styles.ownLink}
+            accessibilityRole="button"
+            accessibilityLabel="Write your own idea"
+          >
+            <Text style={styles.ownTxt}>or write your own</Text>
+          </AnimatedPressable>
         </Animated.View>
       </View>
 
@@ -179,7 +198,7 @@ export default function IdeasScreen() {
         saved={saved}
         onSave={onSave}
         onReroll={roll}
-        onWeb={() => idea && WebBrowser.openBrowserAsync(continueOnWebUrl(idea))}
+        onBuild={build}
         onClose={close}
       />
     </View>
@@ -291,8 +310,9 @@ const styles = StyleSheet.create({
   headWord: { fontFamily: fonts.display, fontSize: 84, lineHeight: 80, color: colors.foreground },
   question: { color: colors.accent, marginLeft: 2 },
   rollWrap: { marginTop: 36 },
-  below: { marginTop: 26, minHeight: 40, alignItems: "center", justifyContent: "center" },
-  hint: { ...typography.caption, color: colors.muted },
+  below: { marginTop: 26, alignItems: "center", justifyContent: "center", gap: 10 },
+  ownLink: { paddingVertical: 8, paddingHorizontal: 12 },
+  ownTxt: { fontFamily: fonts.sansMedium, fontSize: 14, color: colors.muted, textDecorationLine: "underline" },
   lastPill: {
     flexDirection: "row",
     alignItems: "center",

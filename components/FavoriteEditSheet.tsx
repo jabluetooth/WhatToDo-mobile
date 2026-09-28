@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Feather from "@expo/vector-icons/Feather";
-import * as WebBrowser from "expo-web-browser";
+import { useRouter } from "expo-router";
 import { ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { Button } from "@/components/Button";
 import { Kicker } from "@/components/fx";
@@ -10,9 +10,9 @@ import { useAuth } from "@/lib/auth";
 import { AnimatedPressable, fireHaptic } from "@/lib/motion";
 import { shareIdea } from "@/lib/share";
 import { useFavorites } from "@/lib/stores/favorites";
+import { promptFromIdea, useSpec } from "@/lib/stores/spec";
 import { colors, fonts, typography } from "@/lib/theme";
 import { PRESET_TAGS, type Favorite, type PresetTag } from "@/lib/types";
-import { continueOnWebUrl } from "@/lib/webLink";
 
 interface FavoriteEditSheetProps {
   favorite: Favorite | null;
@@ -20,11 +20,13 @@ interface FavoriteEditSheetProps {
 }
 
 /**
- * One saved idea: read it, tag it, jot why it stood out, then take it to the web to build, share
- * it, or let it go. Edits save through the favorites store (instant, rolled back on failure).
+ * One saved idea: read it, tag it, jot why it stood out, then write its spec (and build it on
+ * the web from there), share it, or let it go. Edits save through the favorites store (instant, rolled back on failure).
  */
 export function FavoriteEditSheet({ favorite, onClose }: FavoriteEditSheetProps) {
   const { token } = useAuth();
+  const router = useRouter();
+  const startSpec = useSpec((s) => s.start);
   const edit = useFavorites((s) => s.edit);
   const remove = useFavorites((s) => s.remove);
   const [shown, setShown] = useState<Favorite | null>(favorite);
@@ -97,11 +99,17 @@ export function FavoriteEditSheet({ favorite, onClose }: FavoriteEditSheetProps)
         />
 
         <Button
-          onPress={() => WebBrowser.openBrowserAsync(continueOnWebUrl(shown))}
-          icon={<Feather name="arrow-up-right" size={17} color={colors.accentInk} />}
-          accessibilityLabel="Continue building this idea on the web"
+          onPress={() => {
+            if (!token) return;
+            void startSpec(token, promptFromIdea(shown), { platform: shown.platformTag }, shown);
+            onClose();
+            router.push("/spec");
+          }}
+          haptic="medium"
+          trailing={<Feather name="arrow-right" size={17} color={colors.accentInk} />}
+          accessibilityLabel="Build this: write its spec"
         >
-          Continue on web
+          Build this
         </Button>
 
         <View style={styles.row}>
