@@ -56,7 +56,7 @@ export function DockTabBar({ state, descriptors, navigation, insets }: BottomTab
                 accessibilityState={focused ? { selected: true } : {}}
                 accessibilityLabel={label}
               >
-                <AnimatedTabIcon focused={focused}>
+                <AnimatedTabIcon focused={focused} label={typeof options.title === "string" ? options.title : label}>
                   {options.tabBarIcon?.({ focused, color, size: ICON_SIZE })}
                 </AnimatedTabIcon>
               </DockTabButton>
