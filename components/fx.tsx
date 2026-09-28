@@ -1,5 +1,5 @@
 import { type ReactNode } from "react";
-import { Image, StyleSheet, Text, View, type ColorValue, type StyleProp, type TextStyle, type ViewStyle } from "react-native";
+import { Image, StyleSheet, Text, View, useWindowDimensions, type ColorValue, type StyleProp, type TextStyle, type ViewStyle } from "react-native";
 import Animated, { FadeInUp, ReduceMotion } from "react-native-reanimated";
 import Svg, { Circle, Rect } from "react-native-svg";
 import { EASE } from "@/lib/motion";
@@ -10,12 +10,28 @@ import { colors, fonts, typography } from "@/lib/theme";
  * reads as printed matter. A pre-rendered noise tile, repeated; never interactive.
  */
 export function Grain() {
+  // Tiled by hand: Image's resizeMode="repeat" draws the tile only once, in the top-left corner,
+  // under the new architecture on iOS — which read as a faint box behind the header wordmark.
+  // A grid of the same (cached) 160pt tile covers the screen on every platform.
+  const { width, height } = useWindowDimensions();
+  const cols = Math.ceil(width / GRAIN_TILE);
+  const rows = Math.ceil(height / GRAIN_TILE) + 1;
   return (
-    <View style={StyleSheet.absoluteFill} pointerEvents="none">
-      <Image source={require("../assets/grain.png")} resizeMode="repeat" style={[StyleSheet.absoluteFill, { opacity: 0.05 }]} />
+    <View style={[StyleSheet.absoluteFill, styles.grain]} pointerEvents="none" accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+      {Array.from({ length: rows * cols }, (_, i) => (
+        <Image key={i} source={GRAIN} style={styles.grainTile} />
+      ))}
     </View>
   );
 }
+
+const GRAIN = require("../assets/grain.png");
+const GRAIN_TILE = 160;
+
+const styles = StyleSheet.create({
+  grain: { flexDirection: "row", flexWrap: "wrap", opacity: 0.05, overflow: "hidden" },
+  grainTile: { width: GRAIN_TILE, height: GRAIN_TILE },
+});
 
 /**
  * The decorative "WHAT TO DO?" line at the foot of a screen (web: components/Watermark.tsx),
