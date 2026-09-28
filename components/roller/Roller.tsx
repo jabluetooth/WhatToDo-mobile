@@ -174,15 +174,15 @@ function Stage({ loading, idea, drawNumber, error, capReached, saved, onSave, on
         <GestureDetector gesture={swipe}>
           <Animated.View style={[styles.centre, swipeStyle]}>
             {spinning && (
-              <View style={[styles.reelBox, { height: reelSize * 1.25 }]} accessibilityLabel="Rolling an idea">
+              <View style={[styles.reelBox, { height: reelSize * 1.45 }]} accessibilityLabel="Rolling an idea">
                 {reduced ? (
-                  <Text style={[styles.reelText, { fontSize: reelSize, lineHeight: reelSize * 1.05 }]}>ROLLING…</Text>
+                  <Text style={[styles.reelText, { fontSize: reelSize, lineHeight: Math.round(reelSize * 1.15) }]}>ROLLING…</Text>
                 ) : (
                   <Animated.Text
                     key={tick}
                     entering={reelFlick}
                     numberOfLines={1}
-                    style={[styles.reelText, { fontSize: reelSize, lineHeight: reelSize * 1.05 }]}
+                    style={[styles.reelText, { fontSize: reelSize, lineHeight: Math.round(reelSize * 1.15) }]}
                   >
                     {decoy.toUpperCase()}
                   </Animated.Text>
@@ -301,8 +301,8 @@ function LandWord({ word, size, delay }: { word: string; size: number; delay: nu
     ],
   }));
   return (
-    <View style={styles.wordMask}>
-      <Animated.Text style={[styles.word, { fontSize: size, lineHeight: size * 0.98 }, style]}>{word}</Animated.Text>
+    <View style={[styles.wordMask, { paddingVertical: size * 0.18, marginVertical: -size * 0.18 }]}>
+      <Animated.Text style={[styles.word, { fontSize: size, lineHeight: Math.round(size * 1.12) }, style]}>{word}</Animated.Text>
     </View>
   );
 }
@@ -413,12 +413,12 @@ const styles = StyleSheet.create({
   reelText: { fontFamily: fonts.display, color: colors.accent, textAlign: "center" },
 
   message: { alignItems: "center", gap: 14, paddingHorizontal: 8 },
-  bigLine: { fontFamily: fonts.display, fontSize: 64, lineHeight: 62, color: colors.foreground, textAlign: "center" },
+  bigLine: { fontFamily: fonts.display, fontSize: 64, lineHeight: 72, color: colors.foreground, textAlign: "center" },
   sub: { ...typography.body, color: colors.muted, textAlign: "center" },
 
   landed: { alignItems: "center", width: "100%" },
   titleRow: { flexDirection: "row", flexWrap: "wrap", justifyContent: "center", columnGap: 10 },
-  wordMask: { overflow: "hidden", paddingTop: 4 },
+  wordMask: { overflow: "hidden" },
   word: { fontFamily: fonts.display, color: colors.accentInk, textAlign: "center" },
   target: { fontFamily: fonts.sansSemibold, fontSize: 20, lineHeight: 26, color: colors.accentInk, textAlign: "center", marginTop: 18 },
   desc: { ...typography.body, color: colors.accentInk, opacity: 0.75, textAlign: "center", marginTop: 10, maxWidth: 520 },

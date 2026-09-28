@@ -1,9 +1,8 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "expo-router";
-import { useBottomTabBarHeight } from "expo-router/js-tabs";
 import { FlatList, RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
 import Animated from "react-native-reanimated";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { AppHeader } from "@/components/AppHeader";
 import { Button } from "@/components/Button";
 import { FavoriteEditSheet } from "@/components/FavoriteEditSheet";
 import { DiceIcon, Kicker, RiseWords, Watermark } from "@/components/fx";
@@ -22,8 +21,6 @@ const fmtDate = (iso: string) => new Date(iso).toLocaleDateString("en-US", { mon
  * filter by. Tap a row to tag it, add notes, share it or take it to the web to build.
  */
 export default function FavoritesScreen() {
-  const insets = useSafeAreaInsets();
-  const tabBarHeight = useBottomTabBarHeight();
   const router = useRouter();
   const { token } = useAuth();
   const { items, ready, syncing, error, sync } = useFavorites();
@@ -37,9 +34,9 @@ export default function FavoritesScreen() {
 
   const header = (
     <View style={styles.header}>
-      <Kicker>Saved ideas</Kicker>
+      <Kicker>Your shortlist</Kicker>
       <View style={styles.titleRow}>
-        <RiseWords words={["FAVORITES"]} wordStyle={styles.title} style={styles.titleWords} />
+        <RiseWords words={["SAVED"]} wordStyle={styles.title} style={styles.titleWords} />
         {items.length > 0 && (
           <Animated.Text entering={enterFade} style={styles.count}>
             {items.length}
@@ -60,10 +57,11 @@ export default function FavoritesScreen() {
 
   return (
     <View style={styles.screen}>
+      <AppHeader />
       <FlatList
         data={ready ? visible : []}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={[styles.list, { paddingTop: insets.top + 12, paddingBottom: tabBarHeight + 40 }]}
+        contentContainerStyle={[styles.list, { paddingBottom: 40 }]}
         refreshControl={
           <RefreshControl refreshing={syncing && ready} onRefresh={() => token && sync(token)} tintColor={colors.accent} colors={[colors.accent]} />
         }
@@ -137,7 +135,7 @@ const styles = StyleSheet.create({
   header: { paddingBottom: 12, gap: 6 },
   titleRow: { flexDirection: "row", alignItems: "flex-end", gap: 12, marginTop: 6 },
   titleWords: { justifyContent: "flex-start" },
-  title: { fontFamily: fonts.display, fontSize: 64, lineHeight: 62, color: colors.foreground },
+  title: { fontFamily: fonts.display, fontSize: 64, lineHeight: 72, color: colors.foreground },
   count: { fontFamily: fonts.display, fontSize: 28, lineHeight: 36, color: colors.accent },
   error: { ...typography.caption, color: colors.danger, marginTop: 6 },
   filterScroll: { marginHorizontal: -20, marginTop: 14 },
@@ -146,7 +144,7 @@ const styles = StyleSheet.create({
   row: { paddingVertical: 20, gap: 6, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.line },
   rowMeta: { flexDirection: "row", justifyContent: "space-between" },
   mono: { ...typography.label, fontSize: 10, color: colors.muted },
-  rowTitle: { fontFamily: fonts.display, fontSize: 30, lineHeight: 32, color: colors.foreground, marginTop: 2 },
+  rowTitle: { fontFamily: fonts.display, fontSize: 30, lineHeight: 34, color: colors.foreground, marginTop: 2 },
   rowTarget: { fontFamily: fonts.sansSemibold, fontSize: 15, color: colors.foreground },
   rowDesc: { ...typography.body, fontSize: 15, lineHeight: 21, color: colors.muted },
   rowTags: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: 6, marginTop: 6 },
@@ -155,7 +153,7 @@ const styles = StyleSheet.create({
   noteMark: { flexShrink: 1, ...typography.caption, color: colors.muted, fontStyle: "italic" },
 
   empty: { alignItems: "center", gap: 12, marginTop: 40, paddingHorizontal: 8 },
-  emptyTitle: { fontFamily: fonts.display, fontSize: 44, lineHeight: 44, color: colors.foreground, textAlign: "center" },
+  emptyTitle: { fontFamily: fonts.display, fontSize: 44, lineHeight: 49, color: colors.foreground, textAlign: "center" },
   emptyText: { ...typography.body, color: colors.muted, textAlign: "center", maxWidth: 290 },
   emptyBtn: { marginTop: 10, alignSelf: "stretch" },
   emptyTag: { ...typography.body, color: colors.muted, marginTop: 24 },

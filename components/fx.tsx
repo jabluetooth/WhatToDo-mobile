@@ -33,7 +33,7 @@ export function Watermark({ style }: { style?: StyleProp<ViewStyle> }) {
 
 const wm = StyleSheet.create({
   wrap: { position: "absolute", left: 0, right: 0, bottom: 0, height: 64, overflow: "hidden", alignItems: "center" },
-  text: { fontFamily: fonts.display, fontSize: 96, lineHeight: 96, color: "rgba(243,241,234,0.045)", letterSpacing: -1 },
+  text: { fontFamily: fonts.display, fontSize: 96, lineHeight: 108, color: "rgba(243,241,234,0.045)", letterSpacing: -1 },
 });
 
 /** Small uppercase mono label with a lime dot, above section headlines (web: <Kicker>). */
@@ -81,17 +81,21 @@ export function RiseWords({
   step?: number;
   wordStyle?: StyleProp<TextStyle>;
 }) {
+  const flat = StyleSheet.flatten(wordStyle) ?? {};
+  const fs = typeof flat.fontSize === "number" ? flat.fontSize : 48;
+  const pad = Math.round(fs * 0.18);
+  const lineHeight = Math.max(typeof flat.lineHeight === "number" ? flat.lineHeight : 0, Math.round(fs * 1.12));
   return (
     <View style={[rw.row, style]}>
       {words.map((w, i) => (
-        <View key={`${w}-${i}`} style={rw.mask}>
+        <View key={`${w}-${i}`} style={[rw.mask, { paddingVertical: pad, marginVertical: -pad }]}>
           <Animated.Text
             entering={FadeInUp.duration(1000)
               .easing(EASE)
               .delay(delay + i * step)
-              .withInitialValues({ opacity: 1, transform: [{ translateY: 90 }] })
+              .withInitialValues({ opacity: 1, transform: [{ translateY: lineHeight + pad }] })
               .reduceMotion(ReduceMotion.System)}
-            style={wordStyle}
+            style={[wordStyle, { lineHeight }]}
           >
             {w}
           </Animated.Text>

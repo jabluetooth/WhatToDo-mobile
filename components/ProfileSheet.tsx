@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
   name: { fontFamily: fonts.sansSemibold, fontSize: 18, color: colors.foreground },
   email: { ...typography.caption, color: colors.muted, marginTop: 2 },
   count: { alignItems: "flex-end" },
-  countVal: { fontFamily: fonts.display, fontSize: 30, lineHeight: 32, color: colors.accent },
+  countVal: { fontFamily: fonts.display, fontSize: 30, lineHeight: 34, color: colors.accent },
   countLbl: { ...typography.label, fontSize: 10, color: colors.muted },
   row: { flexDirection: "row", alignItems: "center", gap: 12, paddingVertical: 16, minHeight: 56 },
   divider: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.line },

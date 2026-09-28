@@ -8,6 +8,7 @@ import { Button } from "@/components/Button";
 import { RiseWords } from "@/components/fx";
 import { Marquee } from "@/components/roller/Marquee";
 import { useAuth } from "@/lib/auth";
+import { headlineSize } from "@/lib/decoys";
 import { EASE, enterFade, enterRise } from "@/lib/motion";
 import { colors, fonts, typography } from "@/lib/theme";
 
@@ -24,6 +25,7 @@ export default function SignIn() {
   }
 
   const glow = width * 1.3;
+  const hs = headlineSize(width);
 
   return (
     <View style={styles.container}>
@@ -45,8 +47,8 @@ export default function SignIn() {
           Stuck on what to build?
         </Animated.Text>
         <View style={styles.headline} accessible accessibilityRole="header" accessibilityLabel="What to do?">
-          <RiseWords words={["WHAT", "TO", "DO"]} delay={150} wordStyle={styles.word} style={styles.words} />
-          <Animated.Text entering={questionPop} style={[styles.word, styles.question]}>?</Animated.Text>
+          <RiseWords words={["WHAT", "TO", "DO"]} delay={150} wordStyle={[styles.word, { fontSize: hs, lineHeight: Math.round(hs * 1.12) }]} style={styles.words} />
+          <Animated.Text entering={questionPop} style={[styles.word, styles.question, { fontSize: hs, lineHeight: Math.round(hs * 1.12) }]}>?</Animated.Text>
         </View>
         <Animated.Text entering={enterRise(0, 700)} style={styles.subtitle}>
           Roll an app idea worth building. Save the good ones. Build them on the web.
@@ -88,7 +90,7 @@ const styles = StyleSheet.create({
   kicker: { ...typography.label, color: colors.muted, letterSpacing: 3.3 },
   headline: { flexDirection: "row", alignItems: "flex-end", marginTop: 14 },
   words: { columnGap: 12 },
-  word: { fontFamily: fonts.display, fontSize: 84, lineHeight: 80, color: colors.foreground },
+  word: { fontFamily: fonts.display, fontSize: 84, lineHeight: 94, color: colors.foreground },
   question: { color: colors.accent, marginLeft: 2 },
   subtitle: { ...typography.body, color: colors.muted, textAlign: "center", marginTop: 22, maxWidth: 300 },
   footer: { paddingHorizontal: 20, gap: 12 },

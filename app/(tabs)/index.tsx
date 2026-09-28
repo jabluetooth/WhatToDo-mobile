@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import Feather from "@expo/vector-icons/Feather";
 import { useRouter } from "expo-router";
-import { useBottomTabBarHeight } from "expo-router/js-tabs";
 import { StyleSheet, Text, View, useWindowDimensions } from "react-native";
 import Animated, {
   Easing,
@@ -16,10 +15,11 @@ import Animated, {
   withSequence,
   withTiming,
 } from "react-native-reanimated";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Defs, RadialGradient, Rect, Stop } from "react-native-svg";
+import { AppHeader } from "@/components/AppHeader";
 import { FILTERS, FilterDrawer, type PlatformFilter } from "@/components/FilterDrawer";
 import { RiseWords } from "@/components/fx";
+import { headlineSize } from "@/lib/decoys";
 import { Marquee } from "@/components/roller/Marquee";
 import { RollButton } from "@/components/roller/RollButton";
 import { Roller } from "@/components/roller/Roller";
@@ -40,8 +40,6 @@ const PIPELINE = ["Idea", "PRD", "Stack", "Code"];
  * last idea you landed stays one tap away. Saving happens in the draw itself.
  */
 export default function IdeasScreen() {
-  const insets = useSafeAreaInsets();
-  const tabBarHeight = useBottomTabBarHeight();
   const { width } = useWindowDimensions();
   const { token } = useAuth();
   const router = useRouter();
@@ -118,6 +116,8 @@ export default function IdeasScreen() {
     setCapReached(false);
   };
 
+  const hs = headlineSize(width);
+  const filterShort = filter === "all" ? "All" : filter === "web" ? "Web" : "Mobile";
   const filterLabel = FILTERS.find((f) => f.value === filter)?.label ?? "All platforms";
 
   return (
@@ -125,29 +125,36 @@ export default function IdeasScreen() {
       <Marquee />
       <Glow width={width} />
 
-      {/* Filter, top left (web: platform hint) */}
-      <View style={[styles.topBar, { paddingTop: insets.top + 10 }]}>
-        <AnimatedPressable
-          onPress={() => setFilterOpen(true)}
-          scale="strong"
-          haptic="selection"
-          style={styles.filter}
-          accessibilityRole="button"
-          accessibilityLabel={`Platform: ${filterLabel}. Change`}
-        >
-          <Feather name="sliders" size={13} color={colors.muted} />
-          <Text style={styles.filterTxt}>{filterLabel}</Text>
-        </AnimatedPressable>
-      </View>
+      <AppHeader
+        right={
+          <AnimatedPressable
+            onPress={() => setFilterOpen(true)}
+            scale="strong"
+            haptic="selection"
+            style={styles.filter}
+            accessibilityRole="button"
+            accessibilityLabel={`Platform: ${filterLabel}. Change`}
+          >
+            <Feather name="sliders" size={12} color={colors.muted} />
+            <Text style={styles.filterTxt}>{filterShort}</Text>
+          </AnimatedPressable>
+        }
+      />
 
-      <View style={[styles.hero, { paddingBottom: tabBarHeight + 60 }]}>
+      <View style={styles.hero}>
         <Animated.Text entering={enterRise(0, 100)} style={styles.kicker}>
           Stuck on what to build?
         </Animated.Text>
 
         <View style={styles.headline} accessible accessibilityRole="header" accessibilityLabel="What to do?">
-          <RiseWords words={["WHAT", "TO", "DO"]} delay={150} step={100} wordStyle={styles.headWord} style={styles.headWords} />
-          <Question />
+          <RiseWords
+            words={["WHAT", "TO", "DO"]}
+            delay={150}
+            step={100}
+            wordStyle={[styles.headWord, { fontSize: hs, lineHeight: Math.round(hs * 1.12) }]}
+            style={styles.headWords}
+          />
+          <Question size={hs} />
         </View>
 
         <Animated.View entering={popIn} style={styles.rollWrap}>
@@ -184,7 +191,7 @@ export default function IdeasScreen() {
         </Animated.View>
       </View>
 
-      <PipelineRail bottom={tabBarHeight + 18} width={width} />
+      <PipelineRail bottom={18} width={width} />
 
       <FilterDrawer visible={filterOpen} onClose={() => setFilterOpen(false)} filter={filter} onChange={changeFilter} />
 
@@ -206,7 +213,7 @@ export default function IdeasScreen() {
 }
 
 /** The lime "?" that pops in, then wobbles now and then (web: spring pop + `wobble` keyframes). */
-function Question() {
+function Question({ size }: { size: number }) {
   const r = useSharedValue(0);
   useEffect(() => {
     const swing = withSequence(
@@ -222,7 +229,7 @@ function Question() {
   const style = useAnimatedStyle(() => ({ transform: [{ rotate: `${r.value}deg` }] }));
   return (
     <Animated.View entering={questionPop}>
-      <Animated.Text style={[styles.headWord, styles.question, style]}>?</Animated.Text>
+      <Animated.Text style={[styles.headWord, styles.question, { fontSize: size, lineHeight: Math.round(size * 1.12) }, style]}>?</Animated.Text>
     </Animated.View>
   );
 }
@@ -289,13 +296,12 @@ const questionPop = new Keyframe({
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background },
-  topBar: { position: "absolute", top: 0, left: 0, right: 0, paddingHorizontal: 20, flexDirection: "row", zIndex: 2 },
   filter: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 7,
-    paddingHorizontal: 14,
-    paddingVertical: 9,
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
     borderRadius: 999,
     borderWidth: 1,
     borderColor: colors.line,
@@ -303,11 +309,11 @@ const styles = StyleSheet.create({
   },
   filterTxt: { ...typography.label, color: colors.muted },
 
-  hero: { flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 16 },
+  hero: { flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 16, paddingBottom: 56 },
   kicker: { ...typography.label, color: colors.muted, letterSpacing: 3.3 },
   headline: { flexDirection: "row", alignItems: "flex-end", marginTop: 14 },
   headWords: { columnGap: 12 },
-  headWord: { fontFamily: fonts.display, fontSize: 84, lineHeight: 80, color: colors.foreground },
+  headWord: { fontFamily: fonts.display, fontSize: 84, lineHeight: 94, color: colors.foreground },
   question: { color: colors.accent, marginLeft: 2 },
   rollWrap: { marginTop: 36 },
   below: { marginTop: 26, alignItems: "center", justifyContent: "center", gap: 10 },

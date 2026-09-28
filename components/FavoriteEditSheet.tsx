@@ -128,9 +128,9 @@ export function FavoriteEditSheet({ favorite, onClose }: FavoriteEditSheetProps)
           </Button>
         </View>
 
-        <AnimatedPressable onPress={handleRemove} style={styles.remove} accessibilityRole="button" accessibilityLabel={confirmRemove ? "Tap again to remove" : "Remove from favorites"}>
+        <AnimatedPressable onPress={handleRemove} style={styles.remove} accessibilityRole="button" accessibilityLabel={confirmRemove ? "Tap again to remove" : "Remove from Saved"}>
           <Feather name="trash-2" size={15} color={colors.danger} />
-          <Text style={styles.removeTxt}>{confirmRemove ? "Tap again to remove" : "Remove from favorites"}</Text>
+          <Text style={styles.removeTxt}>{confirmRemove ? "Tap again to remove" : "Remove from Saved"}</Text>
         </AnimatedPressable>
       </ScrollView>
     </Sheet>

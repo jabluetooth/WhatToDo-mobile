@@ -39,7 +39,12 @@ export const DECOY_TITLES = [
  */
 export function posterSize(text: string, width: number, height: number): number {
   const longestWord = Math.max(...text.split(/\s+/).map((w) => w.length), 1);
-  const byWidth = (width * 0.86) / (longestWord * 0.52);
+  const byWidth = (width * 0.84) / (longestWord * 0.6);
   const byHeight = height * (text.length > 26 ? 0.1 : text.length > 16 ? 0.13 : 0.17);
   return Math.floor(Math.min(byWidth, byHeight, 150));
+}
+
+/** Headline size that fits "WHAT TO DO?" on one line of this screen (Anton ≈ 4.8em wide). */
+export function headlineSize(width: number): number {
+  return Math.min(84, Math.floor((width - 40) / 5.2));
 }

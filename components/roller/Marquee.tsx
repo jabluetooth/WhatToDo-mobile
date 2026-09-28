@@ -57,8 +57,8 @@ function Row({ text, reverse, seconds }: { text: string; reverse: boolean; secon
 
 const styles = StyleSheet.create({
   wrap: { position: "absolute", top: 0, left: 0, right: 0, bottom: 0, justifyContent: "center", gap: 14, opacity: 0.07 },
-  row: { overflow: "hidden", height: 66 },
+  row: { overflow: "hidden", height: 74 },
   // Far wider than any screen so the line runs off the edge instead of wrapping.
   track: { flexDirection: "row", width: 20000 },
-  text: { fontFamily: fonts.display, fontSize: 64, lineHeight: 66, color: colors.foreground, flexShrink: 0 },
+  text: { fontFamily: fonts.display, fontSize: 64, lineHeight: 74, color: colors.foreground, flexShrink: 0 },
 });
