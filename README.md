@@ -2,8 +2,8 @@
 
 # What To Do - Mobile
 
-**Roll an app idea worth building, write its spec, and hand it to the web to build.**
-The phone companion to [What To Do](https://github.com/jabluetooth/what-to-do): the same full-screen idea roller, a PRD and stack on the go, and your shortlist synced with the web app.
+**Roll an app idea, write its spec, generate the code and push it to GitHub - all from your phone.**
+The phone companion to [What To Do](https://github.com/jabluetooth/what-to-do): the same full-screen idea roller, a PRD and stack on the go, a real starter project built for you, and one tap to publish it as a repo.
 
 ![Expo](https://img.shields.io/badge/Expo-000020?style=for-the-badge&logo=expo&logoColor=white)
 ![React Native](https://img.shields.io/badge/React_Native-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
@@ -14,8 +14,8 @@ The phone companion to [What To Do](https://github.com/jabluetooth/what-to-do): 
 <br>
 
 <!-- HERO: a 10-15s screen recording of one loop: tap ROLL -> the reel spins -> the lime
-     flood lands an idea word by word -> Build this -> the spec writes itself. Save as
-     docs/demo.gif and add here as: -->
+     flood lands an idea word by word -> Build this -> Generate code -> Push to GitHub.
+     Save as docs/demo.gif and add here as: -->
 <!-- <p align="center"><img src="docs/demo.gif" alt="What To Do mobile demo" width="360"></p> -->
 
 </div>
@@ -40,24 +40,27 @@ The phone companion to [What To Do](https://github.com/jabluetooth/what-to-do): 
 
 ## What It Does
 
-Stuck on what to build? Roll. What To Do draws a fresh app idea, lands it full-screen, and takes you from "that one" to a written spec in two taps.
+Stuck on what to build? Roll. What To Do draws a fresh app idea, lands it full-screen, and takes you from "that one" to a written spec, a generated starter project and a GitHub repo without leaving your phone. Only the live in-browser preview stays on the web.
 
 | Feature | Description |
 |---|---|
 | **The Draw** | Tap the lime Roll button: a reel of titles spins, a lime flood opens, and the idea lands word by word. Swipe right to save, left to roll again |
 | **Write Your Own** | Describe an idea yourself, optionally steered by platform, scope (weekend / MVP / production) and the stacks you know |
 | **Spec on the Phone** | "Build this" writes the PRD (problem, users, features, stories, scope, estimate), asks one question if the idea is vague, then recommends a stack with a reason for each pick |
-| **Build on the Web** | Hand the idea or your prompt to the web app, which picks up where the phone left off and generates the code |
-| **Saved Ideas** | A shortlist synced with your account: tags, notes, share, filter by tag |
+| **Build on the Phone** | Generate code turns the spec into a real starter project (template filled in by the model, syntax-checked before it reaches you), with live progress that keeps going if you leave the screen |
+| **Read the Code** | Browse the generated file tree and open any file in a read-only code viewer: monospace, line numbers, scrolls both ways |
+| **Push to GitHub** | One tap creates a repo (private by default, or public) and pushes the project. The first push asks GitHub once for repo access; sign-in itself stays read-only |
+| **Keep It for Later** | Not ready to publish? Keep the spec or the built project in Saved → Projects and push whenever you want. Projects are shared with the web app's History |
+| **Saved** | Two views: Ideas (tags, notes, share, filter) and Projects (Spec, Building 42%, Code ready, Pushed at a glance) |
 | **Daily Idea** | An optional 9:00 nudge with something to build |
 
 ---
 
 ## Screens
 
-| Roll | The Draw | Spec | Write | Saved |
+| Roll | The Draw | Spec | Project | Saved |
 |---|---|---|---|---|
-| WHAT TO DO? hero, orbiting Roll button, drifting idea titles | Reel, lime flood, idea landing word by word | PRD sections, clarifying question, stack with rationale | Your own idea with platform, scope and stack hints | Hairline list, tags, notes, pull to refresh |
+| WHAT TO DO? hero, orbiting Roll button, drifting idea titles | Reel, lime flood, idea landing word by word | PRD sections, clarifying question, stack with rationale, Keep / Generate code | Build progress, file tree and code viewer, Public switch, Push to GitHub, repo link | Ideas and Projects with live status, pull to refresh |
 
 ---
 
@@ -69,6 +72,9 @@ Stuck on what to build? Roll. What To Do draws a fresh app idea, lands it full-s
 - **Stateless mobile API** - `/api/mobile/prd` and `/api/mobile/stack` fold the web's session-based PRD and stack steps into bearer-token calls with the same moderation, vagueness check, daily caps and refund-on-failure
 - **Locked-down sign-in** - backend-mediated GitHub OAuth; the returned token only goes to this app's own scheme, a private-network dev server, or this project's pinned Expo update URL
 - **Race-safe spec flow** - a slower, older request can never overwrite the spec you're looking at
+- **Server-side builds that outlive the screen** - code generation runs as a queued job on the backend (QStash worker, files in R2); the app polls it from a store, not a screen, and resumes a running build after a relaunch
+- **One history across web and phone** - mobile projects are written to the same Postgres tables as the web's signed-in History, so a project started on either shows up on both
+- **Least-privilege GitHub access** - repo scope is requested only on the first push, bound to the signed-in user server-side before the browser round trip, and stored encrypted (AES-256-GCM); pushing the same build twice returns the existing repo
 
 ---
 
@@ -83,6 +89,7 @@ Stuck on what to build? Roll. What To Do draws a fresh app idea, lands it full-s
 | AI | Groq, via the backend |
 | Auth | GitHub OAuth, bearer token in `expo-secure-store` |
 | Animation | Reanimated 4 · react-native-gesture-handler · react-native-svg |
+| Publishing | GitHub REST API (repo creation and file push, via the backend) |
 | Build | EAS Build · EAS Update (OTA) · GitHub Actions typecheck |
 
 ---
@@ -99,6 +106,13 @@ The app has no backend of its own; it's a client for the web app's `/api/mobile/
 | `POST /api/mobile/prd` | Write a PRD for a prompt, or ask one clarifying question |
 | `POST /api/mobile/stack` | Recommend a stack for a PRD |
 | `GET` · `POST` · `PATCH` · `DELETE /api/mobile/favorites` | Your saved ideas |
+| `GET` · `POST /api/mobile/projects` | List your projects, or save a spec (+ stack) as one |
+| `GET` · `DELETE /api/mobile/projects/:id` | One project with its generated file list, or delete it and its files |
+| `PUT /api/mobile/projects/:id/stack` | Attach a newer stack |
+| `POST /api/mobile/projects/:id/boilerplate` | Queue a build; poll `GET /api/mobile/jobs/:id` for progress |
+| `GET /api/mobile/projects/:id/file?path=` | One generated file, for the code viewer |
+| `POST /api/mobile/projects/:id/push` | Create a repo (private or public) and push the code |
+| `POST /api/mobile/github/connect` · `GET` · `DELETE /api/mobile/github` | Grant repo access for pushing, check it, or revoke it |
 
 ---
 
