@@ -50,6 +50,8 @@ export default function RootLayout() {
               <Stack.Screen name="(tabs)" />
               <Stack.Screen name="compose" options={{ presentation: "fullScreenModal", animation: "slide_from_bottom" }} />
               <Stack.Screen name="spec" options={{ animation: "slide_from_right" }} />
+              <Stack.Screen name="project/[id]/index" options={{ animation: "slide_from_right" }} />
+              <Stack.Screen name="project/[id]/file" options={{ animation: "slide_from_right" }} />
             </Stack>
             <Grain />
           </View>

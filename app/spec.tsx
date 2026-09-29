@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import Feather from "@expo/vector-icons/Feather";
-import Ionicons from "@expo/vector-icons/Ionicons";
 import * as WebBrowser from "expo-web-browser";
 import { Redirect, useRouter } from "expo-router";
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, View, useWindowDimensions } from "react-native";
@@ -17,9 +16,10 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Button } from "@/components/Button";
 import { Kicker } from "@/components/fx";
 import { RichText } from "@/components/RichText";
+import { ApiError } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { AnimatedPressable, enterFade, enterRise, fireHaptic } from "@/lib/motion";
-import { useFavorites } from "@/lib/stores/favorites";
+import { useProjects } from "@/lib/stores/projects";
 import { useSpec } from "@/lib/stores/spec";
 import { colors, fonts, typography } from "@/lib/theme";
 import type { StackCategory } from "@/lib/types";
@@ -35,15 +35,18 @@ const STACK_ORDER: { key: StackCategory; label: string }[] = [
 
 /**
  * The spec for one idea, written on the phone (web: the PRD and Stack steps). The PRD's six
- * sections read top to bottom; the stack is one tap further; code is generated on the web.
+ * sections read top to bottom; the stack is one tap further; Keep saves it as a project and
+ * Generate code builds it right here (the live preview stays on the web).
  */
 export default function SpecScreen() {
   const { token } = useAuth();
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const spec = useSpec();
-  const saveFav = useFavorites((s) => s.save);
-  const saved = useFavorites((s) => (spec.idea ? s.isSaved(spec.idea) : false));
+  const createProject = useProjects((s) => s.create);
+  const startBuild = useProjects((s) => s.build);
+  const [busy, setBusy] = useState<"keep" | "build" | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   if (!token) return <Redirect href="/sign-in" />;
   if (spec.status === "idle") return <Redirect href="/(tabs)" />;
@@ -51,10 +54,33 @@ export default function SpecScreen() {
   const title = spec.idea ? spec.idea.title : "Your idea";
   const webUrl = spec.idea ? continueOnWebUrl(spec.idea) : continuePromptOnWebUrl(spec.prompt, spec.hints);
 
-  const save = async () => {
-    if (!spec.idea || saved) return;
-    const ok = await saveFav(token, spec.idea);
-    fireHaptic(ok ? "success" : "warning");
+  // Keep → save as a project; Generate → save and start building. Either way the spec becomes a
+  // project (once) and you land on it, where the code, files and GitHub push live.
+  const toProject = async (build: boolean) => {
+    if (busy) return;
+    setBusy(build ? "build" : "keep");
+    setActionError(null);
+    try {
+      let id = spec.projectId;
+      if (!id) {
+        id = await createProject(token, {
+          prompt: spec.prompt,
+          hints: spec.hints,
+          sections: spec.sections,
+          lowConfidence: spec.lowConfidence,
+          stack: spec.stack,
+        });
+        useSpec.setState({ projectId: id });
+      }
+      if (build && !useProjects.getState().builds[id]) await startBuild(token, id);
+      fireHaptic("success");
+      router.push({ pathname: "/project/[id]", params: { id } });
+    } catch (err) {
+      fireHaptic("warning");
+      setActionError(err instanceof ApiError ? err.message : "Couldn't save this project. Try again.");
+    } finally {
+      setBusy(null);
+    }
   };
 
   return (
@@ -130,31 +156,39 @@ export default function SpecScreen() {
                 </>
               )}
             </View>
+
+            {actionError ? <Text style={styles.error}>{actionError}</Text> : null}
+            <AnimatedPressable onPress={() => WebBrowser.openBrowserAsync(webUrl)} style={styles.webLink} accessibilityRole="link">
+              <Feather name="monitor" size={13} color={colors.muted} />
+              <Text style={styles.webLinkTxt}>Want the live preview? Build it on the web instead</Text>
+            </AnimatedPressable>
           </>
         )}
       </ScrollView>
 
       {spec.status === "ready" && (
         <Animated.View entering={enterFade} style={[styles.footer, { paddingBottom: insets.bottom + 14 }]}>
-          {spec.idea && (
-            <Button
-              variant="secondary"
-              onPress={save}
-              disabled={saved}
-              style={styles.saveBtn}
-              icon={<Ionicons name={saved ? "checkmark" : "star-outline"} size={17} color={colors.foreground} />}
-              accessibilityLabel={saved ? "Saved" : "Save idea"}
-            >
-              {saved ? "Saved" : "Save"}
-            </Button>
-          )}
           <Button
-            onPress={() => WebBrowser.openBrowserAsync(webUrl)}
-            style={styles.flex}
-            trailing={<Feather name="arrow-up-right" size={18} color={colors.accentInk} />}
-            accessibilityLabel="Build the code on the web"
+            variant="secondary"
+            onPress={() => toProject(false)}
+            loading={busy === "keep"}
+            disabled={busy !== null}
+            style={styles.keepBtn}
+            icon={<Feather name="bookmark" size={16} color={colors.foreground} />}
+            accessibilityLabel="Keep this spec in Saved, Projects"
           >
-            Build it on web
+            Keep
+          </Button>
+          <Button
+            onPress={() => toProject(true)}
+            loading={busy === "build"}
+            disabled={busy !== null}
+            haptic="medium"
+            style={styles.flex}
+            trailing={<Feather name="zap" size={17} color={colors.accentInk} />}
+            accessibilityLabel="Generate the code for this spec"
+          >
+            Generate code
           </Button>
         </Animated.View>
       )}
@@ -258,6 +292,8 @@ const styles = StyleSheet.create({
     borderTopColor: colors.line,
     backgroundColor: colors.background,
   },
-  saveBtn: { paddingHorizontal: 18 },
+  keepBtn: { paddingHorizontal: 20 },
+  webLink: { flexDirection: "row", alignItems: "center", gap: 6, paddingVertical: 4 },
+  webLinkTxt: { fontFamily: fonts.sansMedium, fontSize: 13, color: colors.muted, textDecorationLine: "underline" },
   flex: { flex: 1 },
 });

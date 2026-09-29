@@ -5,6 +5,9 @@ import type {
   PlatformTag,
   PrdSection,
   PresetTag,
+  ProjectDetail,
+  ProjectSummary,
+  JobStatus,
   PromptHints,
   RandomIdea,
   StackRecommendation,
@@ -104,3 +107,82 @@ export async function generateStack(
 }
 
 export type { MobileUser };
+
+// ─── Projects, builds and GitHub ──────────────────────────────────────────────
+
+export async function listProjects(token: string): Promise<ProjectSummary[]> {
+  const { projects } = await request<{ projects: ProjectSummary[] }>("/api/mobile/projects", token);
+  return projects;
+}
+
+export async function createProject(
+  token: string,
+  body: { prompt: string; hints?: PromptHints; sections: PrdSection[]; lowConfidence: boolean; stack?: StackRecommendation }
+): Promise<string> {
+  const { projectId } = await request<{ projectId: string }>("/api/mobile/projects", token, {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+  return projectId;
+}
+
+export function getProject(token: string, id: string): Promise<ProjectDetail> {
+  return request<ProjectDetail>(`/api/mobile/projects/${id}`, token);
+}
+
+export function deleteProject(token: string, id: string): Promise<void> {
+  return request<void>(`/api/mobile/projects/${id}`, token, { method: "DELETE" });
+}
+
+export function saveProjectStack(token: string, id: string, stack: StackRecommendation): Promise<{ stack: StackRecommendation }> {
+  return request(`/api/mobile/projects/${id}/stack`, token, { method: "PUT", body: JSON.stringify({ stack }) });
+}
+
+export async function startBuild(token: string, id: string): Promise<string> {
+  const { jobId } = await request<{ jobId: string }>(`/api/mobile/projects/${id}/boilerplate`, token, { method: "POST" });
+  return jobId;
+}
+
+export function getJobStatus(token: string, jobId: string): Promise<JobStatus> {
+  return request<JobStatus>(`/api/mobile/jobs/${jobId}`, token);
+}
+
+export function getProjectFile(
+  token: string,
+  id: string,
+  path: string
+): Promise<{ path: string; content: string; truncated: boolean; size: number }> {
+  return request(`/api/mobile/projects/${id}/file?path=${encodeURIComponent(path)}`, token);
+}
+
+/** Thrown when pushing needs the one-time GitHub repo grant first. */
+export class NeedsGithubConnect extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "NeedsGithubConnect";
+  }
+}
+
+export async function pushProject(token: string, id: string, isPrivate: boolean): Promise<string> {
+  const res = await fetch(`${BASE_URL}/api/mobile/projects/${id}/push`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ private: isPrivate }),
+  });
+  const body = await res.json().catch(() => null);
+  if (res.status === 409 && body?.needsGithubConnect) throw new NeedsGithubConnect(body.error ?? "Connect GitHub to push.");
+  if (!res.ok) throw new ApiError(body?.error ?? `Push failed (${res.status})`, res.status);
+  return body.repoUrl as string;
+}
+
+export function githubStatus(token: string): Promise<{ connected: boolean; login: string | null }> {
+  return request("/api/mobile/github", token);
+}
+
+export async function githubConnectUrl(token: string, redirectUri: string): Promise<string> {
+  const { url } = await request<{ url: string }>("/api/mobile/github/connect", token, {
+    method: "POST",
+    body: JSON.stringify({ redirect_uri: redirectUri }),
+  });
+  return url;
+}

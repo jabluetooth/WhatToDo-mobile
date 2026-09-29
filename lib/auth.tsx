@@ -4,6 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 import { fetchMe, githubStartUrl } from "@/lib/api";
 import { deleteSecureItem, getSecureItem, setSecureItem } from "@/lib/secureStore";
 import { useFavorites } from "@/lib/stores/favorites";
+import { useProjects } from "@/lib/stores/projects";
 import type { MobileUser } from "@/lib/types";
 
 const TOKEN_KEY = "whattodo_mobile_token";
@@ -92,6 +93,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = useCallback(async () => {
     // The next account on this device mustn't see this one's cached favorites.
     await useFavorites.getState().reset();
+    await useProjects.getState().reset();
     await deleteSecureItem(TOKEN_KEY);
     setToken(null);
     setUser(null);

@@ -21,6 +21,8 @@ interface SpecState {
   stack: StackRecommendation | null;
   stackLoading: boolean;
   stackError: string | null;
+  /** Set once this spec has been kept as a project, so keeping or building it again reuses it. */
+  projectId: string | null;
 
   start: (token: string, prompt: string, hints?: PromptHints, idea?: RandomIdea | null) => Promise<void>;
   answer: (token: string, answer: string) => Promise<void>;
@@ -44,6 +46,7 @@ const blank = {
   stack: null,
   stackLoading: false,
   stackError: null,
+  projectId: null,
 };
 
 export const useSpec = create<SpecState>((set, get) => ({

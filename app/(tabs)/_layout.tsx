@@ -7,6 +7,7 @@ import { ProfileSheet } from "@/components/ProfileSheet";
 import { useAuth } from "@/lib/auth";
 import { triggerIdeaGenerate } from "@/lib/ideaGenerate";
 import { useFavorites } from "@/lib/stores/favorites";
+import { useProjects } from "@/lib/stores/projects";
 import { useUi } from "@/lib/stores/ui";
 
 export default function TabsLayout() {
@@ -20,6 +21,9 @@ export default function TabsLayout() {
     if (!token) return;
     const { hydrate, sync } = useFavorites.getState();
     hydrate().then(() => sync(token));
+    const projects = useProjects.getState();
+    projects.hydrate().then(() => projects.sync(token));
+    void projects.resumeBuilds(token);
   }, [token]);
 
   if (!loading && !token) {
