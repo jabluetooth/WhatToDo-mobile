@@ -1,6 +1,7 @@
+import { API_BASE_URL } from "@/lib/config";
 import type { PromptHints, RandomIdea } from "@/lib/types";
 
-const BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL ?? "http://localhost:3000";
+const BASE_URL = API_BASE_URL;
 
 /**
  * The web app and this app's API share one deployment (BASE_URL), so these open the web app's

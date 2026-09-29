@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "@/lib/config";
 import Feather from "@expo/vector-icons/Feather";
 import * as WebBrowser from "expo-web-browser";
 import { Image, StyleSheet, Switch, Text, View } from "react-native";
@@ -10,7 +11,7 @@ import { useFavorites } from "@/lib/stores/favorites";
 import { useDailyReminder } from "@/lib/useDailyReminder";
 import { colors, fonts, typography } from "@/lib/theme";
 
-const WEB_URL = process.env.EXPO_PUBLIC_API_BASE_URL ?? "https://whattodoby.filheinzrelatorre.com";
+const WEB_URL = API_BASE_URL;
 
 interface ProfileSheetProps {
   visible: boolean;
